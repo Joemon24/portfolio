@@ -1,0 +1,9 @@
+#card-nav-root { display: none; }
+.topbar .card-nav__link { min-height: 44px; }
+.topbar .card-nav__panel { max-height: calc(100dvh - 1rem); overflow: auto; }
+.topbar .card-nav__link:focus-visible { outline-offset: -2px; }
+
+@media (max-width: 560px) {
+  #card-nav-root:not(:empty) { display: block; width: 100%; }
+  .topbar-inner:has(.card-nav) .topbar-links { display: none; }
+}

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="description" content="Joemon Joy, AI Engineer in Bengaluru. Retrieval, model integrations, and reliability testing for AI systems.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Joemon Joy | AI Engineer">
+  <meta property="og:description" content="Selected work in retrieval, AI agent evaluations, and backend reliability.">
+  <meta property="og:image" content="https://joemon24.github.io/portfolio/assets/portfolio-preview.png">
+  <meta property="og:image:alt" content="Joemon Joy in pixel lettering, with the subtitle AI Engineer.">
+  <meta name="twitter:card" content="summary_large_image">
+  <title>Joemon Joy | AI Engineer</title>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="preload" href="./assets/type/joemon-arcade.ttf" as="font" type="font/ttf" crossorigin>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./portfolio.js"></script>
+  <script type="module" src="./src/portfolio-ui.jsx"></script>
+</head>
+<body>
+  <a class="skip-link" href="#projects">Skip to projects</a>
+  <header class="topbar" id="top">
+    <div class="shell topbar-inner">
+      <div id="card-nav-root"></div>
+      <nav class="topbar-links" aria-label="Main navigation">
+        <a href="#projects">Projects</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="shell opening">
+      <header class="identity">
+        <div class="name-row">
+          <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
+          <button class="pixel-pet" type="button" aria-label="Make the pixel robot wave" hidden>
+            <canvas width="24" height="24" aria-hidden="true"></canvas>
+          </button>
+          <span class="visually-hidden" role="status" id="pet-status"></span>
+        </div>
+        <p>AI engineer in Bengaluru building LLM systems that keep working when things break. Open to Applied AI, agentic AI, and forward-deployed roles.</p>
+        <div class="hero-links">
+          <a class="primary-link" href="./assets/Joemon-Joy-Resume.pdf" download>Resume <span aria-hidden="true">↓</span><span class="file-type">PDF</span></a>
+          <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="mailto:joemonjoy241@gmail.com">Email <span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+        </div>
+      </header>
+
+      <section id="about" class="about-section" aria-labelledby="about-title">
+        <h2 id="about-title">About me</h2>
+        <p>I build LLM applications and the backend around them: retrieval, model integration, access control, and the tests that show where they fail.</p>
+        <p class="experience"><strong>Student Innovation Assistant, Research Intern (AI/ML) · CoCreate Ventures</strong><br>ARC engineering contributions · Aug–Sep 2026</p>
+        <p>On ARC, I contributed hybrid PostgreSQL search, OpenRouter integration, and tenant-access revalidation. I also enforced the caller’s retrieval limit and added a prompt budget so context assembly stayed within both bounds.</p>
+        <p>Logly recovers from a forced consumer crash without duplicating events. I’m now working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.</p>
+      </section>
+    </div>
+
+    <section id="projects" class="project-select shell" aria-labelledby="projects-title">
+      <h2 id="projects-title">Projects</h2>
+      <div class="arcade" id="project-details">
+        <nav class="project-menu" aria-label="Project selection">
+          <div class="menu-group">
+            <p>Featured</p>
+            <ul>
+              <li><a href="#arc">ARC</a></li>
+              <li><a href="#logly">Logly</a></li>
+              <li><a href="#emotion">Emotion API</a></li>
+            </ul>
+          </div>
+          <details class="menu-group secondary-menu">
+            <summary>More work</summary>
+            <ul>
+              <li><a href="#fraiseql">FraiseQL PR</a></li>
+              <li><a href="#churn">Bank Churn</a></li>
+              <li><a href="#mapreduce">MapReduce</a></li>
+            </ul>
+          </details>
+        </nav>
+        <div class="project-panels">
+          <article class="project-panel featured" id="arc" aria-labelledby="arc-title">
+            <h3 id="arc-title">ARC</h3>
+            <dl class="case-facts">
+              <div><dt>My work</dt><dd>Implemented OpenRouter integration and hybrid retrieval with full-text search, pgvector, and reciprocal rank fusion. Added tenant-access revalidation and regression tests.</dd></div>
+              <div><dt>Result</dt><dd><strong>53 merged pull requests</strong> in the team repository. In <a href="https://github.com/arc-ive/arc/pull/264">PR #264</a>, I capped the context set at the caller’s requested limit and added a separate prompt budget.</dd></div>
+              <div><dt>Stack</dt><dd>Python, FastAPI, PostgreSQL, pgvector, OpenRouter</dd></div>
+            </dl>
+            <div class="links"><a href="https://github.com/arc-ive/arc">Team repository <span class="arrow" aria-hidden="true">↗</span></a><a href="https://github.com/arc-ive/arc/pulls?q=is%3Apr+is%3Amerged+author%3AJoemon24">Merged pull requests <span class="arrow" aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="project-panel featured" id="logly" aria-labelledby="logly-title">
+            <h3 id="logly-title">Logly</h3>
+            <dl class="case-facts">
+              <div><dt>Problem</dt><dd>A consumer can crash after storing an event and before analyzing it. Restarting must recover the incident without duplicating evidence.</dd></div>
+              <div><dt>My work</dt><dd>Built Linux log collection and hardened incident replay with deterministic event IDs and Kafka offsets that commit after analysis.</dd></div>
+              <div><dt>Result</dt><dd><strong>5 unique events, 1 incident.</strong> Live CI verified that recovery left the stored event untouched and advanced the committed offset.</dd></div>
+              <div><dt>Stack</dt><dd>Go, Kafka, Python, Elasticsearch, SQLite</dd></div>
+            </dl>
+            <ol class="pipeline" aria-label="Logly architecture">
+              <li>Go agent</li><li>Kafka</li><li>Python consumer</li><li>Elasticsearch</li>
+            </ol>
+            <section class="replay" aria-labelledby="replay-title">
+              <div class="replay-heading">
+                <div><h4 id="replay-title">Consumer crash replay</h4><p>Interactive replay of the verified CI result</p></div>
+                <button id="replay-button" type="button" hidden>Replay crash</button>
+              </div>
+              <ol id="replay-events" class="replay-events" aria-label="Five test events">
+                <li class="arrived">01</li><li class="arrived">02</li><li class="arrived">03</li><li class="arrived">04</li><li class="arrived">05</li>
+              </ol>
+              <p id="replay-status" class="replay-status" role="status">Recovery produced one incident from five unique events.</p>
+            </section>
+            <div class="links">
+              <a href="https://joemon24.github.io/Logly/lab.html">Simulation lab <span class="arrow" aria-hidden="true">↗</span></a>
+              <a href="https://github.com/Joemon24/Logly">Source <span class="arrow" aria-hidden="true">↗</span></a>
+              <a href="https://github.com/Joemon24/Logly/actions/runs/43017590957">CI test run <span class="arrow" aria-hidden="true">↗</span></a>
+            </div>
+          </article>
+          <article class="project-panel" id="emotion" aria-labelledby="emotion-title">
+            <h3 id="emotion-title">Emotion API</h3>
+            <p>Trained a six-class Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service. It reached <strong>85.75% accuracy</strong> and <strong>81.96% macro-F1</strong> on 2,000 held-out samples.</p>
+            <div class="links"><a href="https://github.com/Joemon24/emotion-classification">Source <span class="arrow" aria-hidden="true">↗</span></a><a href="https://emotion-classification-z9uu.onrender.com/docs">API docs <span class="arrow" aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="project-panel" id="fraiseql" aria-labelledby="fraiseql-title">
+            <h3 id="fraiseql-title">FraiseQL</h3>
+            <p>Submitted a Rust benchmark compilation fix and broader CI checks. The PR closed unmerged after the maintainers shipped an equivalent fix.</p>
+            <div class="links"><a href="https://github.com/fraiseql/fraiseql-python/pull/491">View pull request <span class="arrow" aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="project-panel" id="churn" aria-labelledby="churn-title">
+            <h3 id="churn-title">Bank Churn</h3>
+            <p>Built a customer churn prediction pipeline with exploratory analysis, feature engineering, and comparisons across logistic regression, random forest, and XGBoost.</p>
+            <div class="links"><a href="https://github.com/Joemon24/bank-customer-churn-ml">View source <span class="arrow" aria-hidden="true">↗</span></a></div>
+          </article>
+          <article class="project-panel" id="mapreduce" aria-labelledby="mapreduce-title">
+            <h3 id="mapreduce-title">MapReduce</h3>
+            <p>Compared Hadoop workloads in Docker containers and virtual machines, tracking CPU, memory, and execution time.</p>
+            <div class="links"><a href="mailto:joemonjoy241@gmail.com?subject=MapReduce%20walkthrough">Request a walkthrough</a></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contact" class="footer">
+    <section class="shell footer-inner" aria-labelledby="contact-title">
+      <div class="contact-intro">
+        <h2 id="contact-title">Contact me</h2>
+        <p>For roles, project questions, or collaboration, email me at <a href="mailto:joemonjoy241@gmail.com">joemonjoy241@gmail.com</a>.</p>
+        <div class="footer-links">
+          <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+  </footer>
+</body>
+</html>
