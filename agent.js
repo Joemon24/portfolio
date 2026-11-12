@@ -1,6 +1,5 @@
 import { openProject, paintAgent, replayCrash } from "./portfolio.js";
 import { runRetrievalSample } from "./portfolio-extras.js";
-import { prepareHiringDraft } from "./contact.js";
 import { matchIntent, retrievalSample } from "./agent-intents.js";
 
 const root = document.documentElement;
@@ -10,6 +9,16 @@ const palette = document.querySelector("#command-palette");
 const paletteToggle = document.querySelector("#palette-toggle");
 const input = document.querySelector("#robot-input");
 const trace = document.querySelector("#agent-trace");
+const consoleBody = document.querySelector("#console-body");
+const fold = document.querySelector("#console-fold");
+const themeControls = document.querySelector("#theme-controls");
+const themeToggle = document.querySelector("#theme-toggle");
+const consoleTheme = document.querySelector("#console-theme");
+const accentToggle = document.querySelector("#console-accent");
+const accentOptions = document.querySelector("#accent-options");
+const contactActions = document.querySelector("#contact-actions");
+const contactCopy = document.querySelector("#contact-copy");
+const recruiter = document.querySelector("#recruiter-commands");
 const projects = [...document.querySelectorAll(".project-menu a")].map(link => ({
   name: link.textContent.trim(), id: link.hash.slice(1),
 }));
@@ -17,11 +26,12 @@ for (const entry of document.querySelectorAll(".more-work li[id]")) {
   projects.push({ name: entry.querySelector("a").textContent.trim(), id: entry.id, moreWork: true });
 }
 const themes = new Set(["light", "dark"]);
-const accents = new Set(["lime", "amber", "cyan"]);
+const accents = new Set(["lime", "red", "blue", "amber", "cyan"]);
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 let dialog;
 let opener;
 let destination;
+let queuedPaletteTrigger;
 let busy = false;
 
 function appendTrace(text) {
@@ -34,6 +44,10 @@ function appendTrace(text) {
 
 function speak(panel, text) {
   panel.querySelector("[data-feedback]").textContent = text;
+  if (panel === consolePanel) {
+    panel.querySelector(".console-bubble").textContent = text;
+    if (consoleBody.hidden) setFoldLabel(text);
+  }
 }
 
 function setState(state) {
@@ -98,11 +112,13 @@ const actions = {
     step("open(resume PDF)", "Opening the resume PDF.", () => window.open(url, "_blank", "noopener"));
     return "Requested the resume PDF in a new tab.";
   },
-  async copy_email(confirmed, step) {
-    const email = document.querySelector('#contact a[href^="mailto:"]').getAttribute("href").slice(7);
+  async copy_email(confirmed, step, panel) {
+    const email = contactActions.querySelector('a[href^="mailto:"]').getAttribute("href").slice(7);
     if (confirmed !== true) {
-      dialog.querySelector("[data-confirm]").hidden = false;
-      dialog.querySelector("[data-confirm]").focus();
+      const confirm = panel.querySelector("[data-confirm]");
+      confirm.hidden = false;
+      if (panel === consolePanel) setCollapsed(false);
+      confirm.focus();
       step("confirm(copy email)", `Copy ${email} to your clipboard?`);
       return null;
     }
@@ -114,18 +130,29 @@ const actions = {
     }
   },
   contact_hiring(_, step) {
-    destination = step("select(Hiring)", "Preparing a hiring draft.", prepareHiringDraft);
-    step("scroll(#contact)", "Opening the contact form.", () => scrollToId("contact"));
-    return "Hiring is selected. Your draft is ready to edit.";
+    step("scroll(#contact)", "Opening contact options.", () => scrollToId("contact"));
+    destination = contactActions.querySelector('a[href^="mailto:"]');
+    return "Use Email me or Copy email to get in touch about a role.";
   },
   toggle_theme(mode, step) {
     const theme = themes.has(mode) ? mode : root.dataset.theme === "dark" ? "light" : "dark";
-    step(`theme(${theme})`, `Applying ${theme} mode.`, () => { root.dataset.theme = theme; });
+    step(`theme(${theme})`, `Applying ${theme} mode.`, () => {
+      root.dataset.theme = theme;
+      const dark = theme === "dark";
+      themeToggle.setAttribute("aria-pressed", String(dark));
+      consoleTheme.dataset.command = dark ? "light mode" : "dark mode";
+      consoleTheme.textContent = dark ? "Light mode" : "Dark mode";
+    });
     return `${theme === "dark" ? "Dark" : "Light"} mode is on.`;
   },
   set_accent(color, step) {
-    if (!accents.has(color)) throw new Error("Choose lime, amber, or cyan. Try “set accent to lime”.");
-    step(`accent(${color})`, `Applying the ${color} accent.`, () => { root.dataset.accent = color; });
+    if (!accents.has(color)) throw new Error("Choose lime, red, blue, amber, or cyan. Try “set accent to lime”.");
+    step(`accent(${color})`, `Applying the ${color} accent.`, () => {
+      root.dataset.accent = color;
+      for (const button of accentOptions.querySelectorAll("button")) {
+        button.setAttribute("aria-pressed", String(button.dataset.command === `accent ${color}`));
+      }
+    });
     return `Accent set to ${color}.`;
   },
   show_help() {
@@ -141,9 +168,16 @@ const actions = {
 async function execute(panel, intent) {
   if (busy) return;
   const confirm = panel.querySelector("[data-confirm]");
-  const needsFocus = document.activeElement === confirm;
-  confirm.hidden = true;
-  if (needsFocus) (panel === consolePanel ? input : palette.querySelector('[data-action="copy_email"]')).focus();
+  if (confirm) {
+    if (document.activeElement === confirm) {
+      const returnFocus = panel === consolePanel ? input
+        : panel === palette ? palette.querySelector('[data-action="copy_email"]') : contactCopy;
+      returnFocus.focus();
+    }
+    confirm.hidden = true;
+  }
+  if (dialog === panel) destination = null;
+  trace.replaceChildren();
   if (!intent) {
     appendTrace("intent: unknown");
     speak(panel, "I can’t do that yet. Try “show Logly”, “resume”, or choose a suggestion.");
@@ -151,63 +185,77 @@ async function execute(panel, intent) {
   }
   busy = true;
   setState("working");
+  if (panel === consolePanel) setCollapsed(true, true);
   const steps = [`intent: ${intent.id}`];
   appendTrace(steps[0]);
   function step(label, narration, action) {
     steps.push(label);
-    if (dialog === panel) speak(panel, narration);
+    if (dialog === panel || !panel.matches("dialog")) speak(panel, narration);
     appendTrace(label);
     return action?.();
   }
   try {
-    const result = await actions[intent.id](intent.arg, step);
+    const result = await actions[intent.id](intent.arg, step, panel);
     if (result) {
       appendTrace(`${steps.join(" → ")} ok`);
-      if (dialog === panel) {
+      if (dialog === panel || !panel.matches("dialog")) {
         speak(panel, result);
         if (panel === palette && destination) panel.close();
       }
     }
   } catch (error) {
     appendTrace(`${steps.join(" → ")} stopped`);
-    if (dialog === panel) speak(panel, error.message);
+    if (dialog === panel || !panel.matches("dialog")) speak(panel, error.message);
   } finally {
     busy = false;
     setState(dialog ? (dialog.querySelector("[data-confirm]").hidden ? "done" : "listening") : "idle");
   }
 }
 
-function placeConsole() {
-  if (!consolePanel.open) return;
-  const anchor = robot.getBoundingClientRect();
-  consolePanel.style.maxHeight = "";
-  const box = consolePanel.getBoundingClientRect();
-  const below = innerHeight - anchor.bottom - 16;
-  const above = anchor.top - 16;
-  const visible = anchor.bottom > 0 && anchor.top < innerHeight && Math.max(above, below) >= 220;
-  const left = visible ? anchor.right - box.width : (innerWidth - box.width) / 2;
-  const useBelow = below >= box.height || below >= above;
-  const available = useBelow ? below : above;
-  if (visible) consolePanel.style.maxHeight = `${available}px`;
-  consolePanel.style.left = `${Math.max(8, Math.min(innerWidth - box.width - 8, left))}px`;
-  consolePanel.style.top = !visible ? "8px" : useBelow ? `${anchor.bottom + 8}px` : "auto";
-  consolePanel.style.bottom = visible && !useBelow ? `${innerHeight - anchor.top + 8}px` : "auto";
+function setFoldLabel(text) {
+  fold.querySelector(".fold-label").textContent = text;
 }
 
+function setCollapsed(collapsed, focus = false) {
+  consoleBody.hidden = collapsed;
+  consolePanel.classList.toggle("is-collapsed", collapsed);
+  fold.setAttribute("aria-expanded", String(!collapsed));
+  fold.querySelector(".fold-icon").textContent = collapsed ? "+" : "−";
+  setFoldLabel(collapsed ? consolePanel.querySelector("[data-feedback]").textContent : "Robot console");
+  if (focus) fold.focus({ preventScroll: true });
+}
+
+if ("ResizeObserver" in window) {
+  const drawerSize = new ResizeObserver(() => {
+    root.style.setProperty("--drawer-height", `${consolePanel.offsetHeight}px`);
+  });
+  drawerSize.observe(consolePanel);
+}
+fold.addEventListener("click", () => setCollapsed(!consoleBody.hidden));
+accentToggle.addEventListener("click", () => {
+  accentOptions.hidden = !accentOptions.hidden;
+  accentToggle.setAttribute("aria-expanded", String(!accentOptions.hidden));
+  if (!accentOptions.hidden) accentOptions.querySelector("button").focus();
+});
+
 function openPanel(panel, trigger) {
-  if (dialog || busy) return;
+  if (dialog || busy) return false;
   dialog = panel;
   opener = trigger;
   destination = null;
   panel.querySelector("[data-confirm]").hidden = true;
   speak(panel, panel === consolePanel ? "Ready to talk. What should I open?" : "");
-  panel.showModal();
   if (panel === consolePanel) {
+    setCollapsed(false);
+    panel.show();
     robot.setAttribute("aria-expanded", "true");
-    placeConsole();
-    input.focus();
-  } else panel.querySelector("[data-action]").focus();
+    input.focus({ preventScroll: true });
+  } else {
+    panel.showModal();
+    panel.querySelector("[data-action]").focus();
+  }
   setState("listening");
+  return true;
 }
 
 for (const panel of [consolePanel, palette]) {
@@ -219,9 +267,14 @@ for (const panel of [consolePanel, palette]) {
     dialog = opener = destination = null;
     robot.setAttribute("aria-expanded", "false");
     if (!busy) setState("idle");
+    if (panel === consolePanel && queuedPaletteTrigger) {
+      const trigger = queuedPaletteTrigger;
+      queuedPaletteTrigger = null;
+      openPanel(palette, trigger);
+    }
   });
   panel.addEventListener("keydown", event => {
-    if (event.key !== "Tab") return;
+    if (panel === consolePanel || event.key !== "Tab") return;
     const items = [...panel.querySelectorAll("button, input, a[href], [tabindex='0']")]
       .filter(item => !item.disabled && !item.hidden && item.getClientRects().length);
     const first = items[0], last = items.at(-1);
@@ -237,23 +290,50 @@ for (const panel of [consolePanel, palette]) {
 }
 robot.hidden = paletteToggle.hidden = false;
 robot.addEventListener("click", () => openPanel(consolePanel, robot));
-paletteToggle.addEventListener("click", () => openPanel(palette, paletteToggle));
-window.addEventListener("resize", placeConsole);
+function openQuickActions() {
+  if (dialog === consolePanel && !busy) {
+    queuedPaletteTrigger = paletteToggle;
+    consolePanel.close();
+    return;
+  }
+  openPanel(palette, paletteToggle);
+}
+paletteToggle.addEventListener("click", openQuickActions);
+themeControls.hidden = contactCopy.hidden = recruiter.hidden = false;
+themeToggle.addEventListener("click", () => execute(themeControls, { id: "toggle_theme" }));
+contactCopy.addEventListener("click", () => execute(contactActions, { id: "copy_email" }));
+contactActions.querySelector("[data-confirm]").addEventListener("click", () =>
+  execute(contactActions, { id: "copy_email", arg: true }));
+recruiter.addEventListener("click", event => {
+  const button = event.target.closest("[data-command]");
+  if (!button || (dialog !== consolePanel && !openPanel(consolePanel, button))) return;
+  input.value = button.dataset.command;
+  execute(consolePanel, matchIntent(input.value, projects));
+});
 document.addEventListener("keydown", event => {
   if (event.defaultPrevented || event.isComposing || event.repeat || event.altKey) return;
+  if (event.key === "Escape" && dialog === consolePanel) {
+    event.preventDefault();
+    consolePanel.close();
+    return;
+  }
   const quick = event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.shiftKey;
   const editable = event.target.closest?.("input, textarea, select, [contenteditable]:not([contenteditable=false])");
   const slash = event.key === "/" && !event.ctrlKey && !event.metaKey && !editable;
-  if (dialog || (!quick && !slash)) return;
-  event.preventDefault();
-  openPanel(quick ? palette : consolePanel, document.activeElement);
+  if (quick && dialog !== palette && !busy) {
+    event.preventDefault();
+    openQuickActions();
+  } else if (slash && !dialog && !busy) {
+    event.preventDefault();
+    openPanel(consolePanel, document.activeElement);
+  }
 });
 
 document.querySelector("#robot-command").addEventListener("submit", event => {
   event.preventDefault();
   if (input.value.trim()) execute(consolePanel, matchIntent(input.value, projects));
 });
-consolePanel.querySelector(".console-chips").addEventListener("click", event => {
+consolePanel.addEventListener("click", event => {
   const button = event.target.closest("[data-command]");
   if (!button || busy) return;
   input.value = button.dataset.command;

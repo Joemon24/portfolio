@@ -271,7 +271,6 @@ a:hover .arrow { transform: translate(2px, -2px); }
 }
 .contact-pet { display: flex; align-items: center; gap: 8px; }
 .contact-pet canvas { width: 48px; height: 48px; image-rendering: pixelated; }
-.contact-pet p { border: 1px solid var(--ink); padding: 8px; font-size: 14px; }
 .footer-credit { display: flex; justify-content: space-between; gap: 8px; margin-top: 24px; border-top: 1px solid var(--rule); padding-top: 16px; font-size: 14px; }
 dialog { width: min(calc(100% - 32px), 448px); padding: 24px; border: 2px solid var(--ink); box-shadow: 8px 8px 0 var(--ink); color: var(--ink); }
 dialog::backdrop { background: rgb(5 5 5 / .55); }
@@ -317,36 +316,7 @@ dialog li > :is(a, button):hover { background: #eee; }
 .footer-credit { padding-block: 16px; }
 .contact-assistant { min-width: 0; }
 .contact-pet canvas { flex: 0 0 48px; }
-#contact-composer { display: grid; gap: 8px; margin-top: 16px; }
-#contact-composer > label, .contact-topics legend { font-size: 14px; font-weight: 600; }
-#contact-composer :is(input[type="email"], input[name="subject"], textarea) {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--ink);
-  background: var(--paper);
-  padding: 8px 12px;
-  color: var(--ink);
-  font: inherit;
-}
-#contact-composer textarea { resize: vertical; }
-.contact-topics { min-width: 0; margin: 0; border: 0; padding: 0; }
-.contact-topics label { display: inline-flex; align-items: center; min-height: 44px; margin-right: 8px; font-size: 14px; }
-.contact-topics input { accent-color: var(--ink); }
-.composer-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-#contact-composer button {
-  width: fit-content;
-  min-height: 44px;
-  border: 1px solid var(--ink);
-  padding: 8px 12px;
-  background: var(--paper);
-  color: var(--ink);
-  font: 600 14px/20px var(--body);
-  cursor: pointer;
-}
-#contact-composer .composer-send { background: var(--ink); color: var(--paper); }
-#contact-composer button:disabled { opacity: .65; cursor: wait; }
-#attach-project[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.composer-clear span, .close-mark { background: var(--accent); color: var(--ink); padding-inline: 4px; }
+.close-mark { background: var(--accent); color: #050505; padding-inline: 4px; }
 @media (max-width: 640px) {
   .footer-inner { grid-template-columns: minmax(0, 1fr); }
 }
@@ -367,22 +337,27 @@ dialog li > :is(a, button):hover { background: #eee; }
   --dots: #44484a;
   --hover: #303335;
 }
+:root[data-accent="red"] { --accent: #ff7979; }
+:root[data-accent="blue"] { --accent: #81baff; }
 :root[data-accent="amber"] { --accent: #ffc95c; }
 :root[data-accent="cyan"] { --accent: #75e5ed; }
-::selection, .composer-clear span, .close-mark { color: #050505; }
+::selection, .close-mark { color: #050505; }
 .project-menu a:not([aria-current="true"]):hover,
 :where(.palette-toggle, dialog button):hover, dialog li > button:hover { background: var(--hover); }
 dialog { background: var(--surface); }
 #robot-console {
   position: fixed;
-  inset: 8px auto auto 8px;
-  width: min(448px, calc(100% - 24px));
-  max-height: calc(100% - 24px);
+  inset: auto 12px 12px auto;
+  width: min(420px, calc(100% - 24px));
+  max-height: 60vh;
+  max-height: 60dvh;
+  overflow: hidden;
   margin: 0;
   padding: 0;
   box-shadow: 4px 4px 0 var(--ink);
 }
-#robot-console::backdrop { background: rgb(5 5 5 / .26); }
+#robot-console[open] { display: flex; flex-direction: column; }
+.console-body { overflow-y: auto; min-height: 0; overscroll-behavior: contain; }
 .console-bar {
   display: flex;
   align-items: center;
@@ -390,9 +365,24 @@ dialog { background: var(--surface); }
   gap: 8px;
   background: var(--ink);
   color: var(--paper);
-  padding: 4px 8px 4px 16px;
+  flex: 0 0 auto;
+  padding: 4px 8px;
 }
-.console-bar h2 { font: 600 16px/24px ui-monospace, monospace; }
+#console-fold {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--paper);
+  padding-inline: 8px;
+  text-align: left;
+  font-family: ui-monospace, monospace;
+}
+.fold-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fold-icon { color: var(--accent); background: #050505; padding-inline: 4px; }
 .console-bar button { min-width: 44px; padding: 4px; }
 .console-bar button:focus-visible { outline-color: var(--paper); }
 .console-body { display: grid; gap: 12px; padding: 16px; }
@@ -438,3 +428,42 @@ dialog { background: var(--surface); }
   filter: drop-shadow(0 0 1px #f3f4f4);
 }
 #agent-trace:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.nav-actions, .contact-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nav-actions { margin-left: auto; }
+.nav-actions .palette-toggle { margin-left: 0; }
+.contact-buttons { margin-top: 16px; }
+.contact-buttons .primary-link { margin-top: 0; }
+:where(.contact-buttons, .contact-assistant) button {
+  min-height: 44px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 8px 12px;
+  font: 600 14px/20px var(--body);
+  cursor: pointer;
+}
+:where(.contact-buttons, .contact-assistant) button:hover { background: var(--hover); }
+.contact-assistant .console-chips { margin-top: 8px; }
+.contact-intro [data-feedback]:empty { margin: 0; }
+#accent-options button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+@media (min-width: 1200px) {
+  body:has(#robot-console[open]) { padding-right: 444px; }
+}
+@media (max-width: 1199px) {
+  :root:has(#robot-console[open]) { scroll-padding-bottom: calc(var(--drawer-height, 60vh) + 16px); }
+  body:has(#robot-console[open]) { padding-bottom: calc(var(--drawer-height, 60vh) + 16px); }
+}
+@media (max-width: 640px) {
+  #robot-console {
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    border-inline: 0;
+    border-bottom: 0;
+    box-shadow: none;
+  }
+  .console-body { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  #robot-console.is-collapsed .console-bar { padding-bottom: max(4px, env(safe-area-inset-bottom)); }
+}

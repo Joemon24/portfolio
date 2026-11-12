@@ -27,7 +27,13 @@
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </nav>
-      <button id="palette-toggle" class="palette-toggle" type="button" hidden aria-keyshortcuts="Control+K Meta+K">Quick actions <kbd>Ctrl/⌘ K</kbd></button>
+      <div class="nav-actions">
+        <div id="theme-controls" hidden>
+          <button id="theme-toggle" class="palette-toggle" type="button" aria-pressed="false">Dark mode</button>
+          <span class="visually-hidden" data-feedback role="status"></span>
+        </div>
+        <button id="palette-toggle" class="palette-toggle" type="button" hidden aria-keyshortcuts="Control+K Meta+K">Quick actions <kbd>Ctrl/⌘ K</kbd></button>
+      </div>
     </div>
   </header>
 
@@ -169,40 +175,31 @@
 
   <footer id="contact" class="footer">
     <section class="shell footer-inner" aria-labelledby="contact-title">
-      <div class="contact-intro">
+      <div class="contact-assistant" id="recruiter-commands" hidden>
+        <div class="contact-pet">
+          <canvas width="24" height="24" aria-hidden="true"></canvas>
+          <h2>Ask the robot</h2>
+        </div>
+        <div class="console-chips" role="group" aria-label="Recruiter questions">
+          <button type="button" data-command="show me your best work">What’s your best work?</button>
+          <button type="button" data-command="break something">How does Logly recover?</button>
+          <button type="button" data-command="run retrieval for tenant access">How does ARC retrieve context?</button>
+          <button type="button" data-command="resume">Can I see your resume?</button>
+        </div>
+      </div>
+      <div class="contact-intro" id="contact-actions">
         <h2 id="contact-title">Contact me</h2>
         <p>Hiring for applied or agentic AI roles?</p>
-        <a class="primary-link" href="mailto:joemonjoy241@gmail.com">Email me <span class="arrow" aria-hidden="true">↗</span></a>
+        <div class="contact-buttons">
+          <a class="primary-link" href="mailto:joemonjoy241@gmail.com">Email me <span class="arrow" aria-hidden="true">↗</span></a>
+          <button id="contact-copy" type="button" hidden>Copy email</button>
+          <button type="button" data-confirm hidden>Confirm copy</button>
+        </div>
+        <p class="caption" data-feedback role="status"></p>
         <div class="footer-links">
           <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
           <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
         </div>
-      </div>
-      <div class="contact-assistant">
-        <div class="contact-pet">
-          <canvas width="24" height="24" aria-hidden="true"></canvas>
-          <p id="assistant-status" role="status">Recovery complete. Ready to talk.</p>
-        </div>
-        <form id="contact-composer" data-formspree-id="" aria-label="Compose a message" hidden>
-          <fieldset class="contact-topics">
-            <legend>What’s it about?</legend>
-            <label><input type="radio" name="topic" value="hiring"> Hiring</label>
-            <label><input type="radio" name="topic" value="project"> Project question</label>
-            <label><input type="radio" name="topic" value="other" checked> Other</label>
-          </fieldset>
-          <label for="contact-email">Your email</label>
-          <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required>
-          <label for="contact-subject">Subject</label>
-          <input id="contact-subject" name="subject" maxlength="120" required>
-          <label for="contact-message">Message</label>
-          <textarea id="contact-message" name="message" rows="4" maxlength="4000" required></textarea>
-          <button id="attach-project" type="button" aria-pressed="false" hidden>Attach current project</button>
-          <div class="composer-actions">
-            <button class="composer-send" type="submit">Open email draft</button>
-            <button class="composer-clear" type="button">Clear draft <span aria-hidden="true">×</span></button>
-          </div>
-          <p class="caption" id="composer-help">Opens your email app with the draft. Send it from there.</p>
-        </form>
       </div>
     </section>
     <div class="shell footer-credit">Joemon Joy <a href="#top">Back to top ↑</a></div>
@@ -222,15 +219,20 @@
   </dialog>
   <dialog id="robot-console" aria-labelledby="robot-console-title">
     <header class="console-bar">
-      <h2 id="robot-console-title">Robot console</h2>
+      <h2 id="robot-console-title" class="visually-hidden">Robot console</h2>
+      <button id="console-fold" type="button" aria-controls="console-body" aria-expanded="true">
+        <span class="fold-icon" aria-hidden="true">−</span>
+        <span class="fold-label">Robot console</span>
+      </button>
       <form method="dialog"><button type="submit" aria-label="Close robot console"><span class="close-mark" aria-hidden="true">×</span></button></form>
     </header>
-    <div class="console-body">
+    <p class="visually-hidden" data-feedback role="status">Ready to talk. What should I open?</p>
+    <div class="console-body" id="console-body">
       <div class="console-speech">
         <canvas width="24" height="24" aria-hidden="true"></canvas>
         <div>
           <p class="console-state" aria-hidden="true">Listening</p>
-          <p class="console-bubble" data-feedback role="status">Ready to talk. What should I open?</p>
+          <p class="console-bubble" aria-hidden="true">Ready to talk. What should I open?</p>
         </div>
       </div>
       <form id="robot-command">
@@ -247,6 +249,13 @@
         <button type="button" data-command="resume">Resume</button>
         <button type="button" data-command="hire him">Hiring</button>
         <button type="button" data-command="help">Help</button>
+        <button type="button" id="console-theme" data-command="dark mode">Dark mode</button>
+        <button type="button" id="console-accent" aria-controls="accent-options" aria-expanded="false">Accent</button>
+      </div>
+      <div id="accent-options" class="console-chips" role="group" aria-label="Accent colors" hidden>
+        <button type="button" data-command="accent lime" aria-pressed="true">Lime</button>
+        <button type="button" data-command="accent red" aria-pressed="false">Red</button>
+        <button type="button" data-command="accent blue" aria-pressed="false">Blue</button>
       </div>
       <button type="button" data-confirm hidden>Confirm copy</button>
       <section class="console-trace" aria-labelledby="trace-title">
