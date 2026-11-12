@@ -18,23 +18,24 @@ for (const [engine, options, device, sizes] of [
   try {
     browser = await engine.launch(options);
     for (const viewport of sizes) {
-      for (const theme of ["light", "dark"]) {
+      for (const theme of ["light", "dark"]) for (const accent of ["lime", "blue"]) {
         const context = await browser.newContext({ ...device, viewport });
         const page = await context.newPage();
         await page.goto(base);
         if (theme === "dark") await page.locator("#theme-toggle").click();
-        const prefix = `${engine.name()}-${viewport.width}x${viewport.height}-${theme}`;
+        if (accent !== "lime") await page.evaluate(color => { document.documentElement.dataset.accent = color; }, accent);
+        const prefix = `${engine.name()}-${viewport.width}x${viewport.height}-${theme}-${accent}`;
         const shot = name => page.screenshot({ path: join(output, `${prefix}-${name}.png`) });
+        assert.equal(await page.locator(".hero-links .social-tile, #mobile-menu .social-tile").count(), 0);
+        assert.equal(await page.locator("#contact .social-tile").count(), 3);
+        await page.locator(".opening").screenshot({ path: join(output, `${prefix}-hero.png`) });
+        await page.locator("#contact").screenshot({ path: join(output, `${prefix}-contact.png`) });
+        await page.locator("#projects").evaluate(section => section.scrollIntoView({ block: "start" }));
+        await page.locator("#walker-ryu").waitFor();
+        await shot("companion-docked");
         await page.locator("#walker-chat").waitFor({ timeout: 5000 });
         await shot("companion-bubble");
-        if (viewport.width >= 900) {
-          await page.mouse.move(800, 200);
-          await page.locator("#walker-ryu.walking").waitFor();
-        } else {
-          await page.evaluate(() => scrollBy(0, 180));
-          await page.locator("#walker-ryu.walking").waitFor();
-        }
-        await shot("companion-walking");
+        await page.evaluate(() => scrollTo(0, 0));
         const opener = viewport.width < 640 ? "#nav-ryu" : ".pixel-pet";
         await page.locator(opener).click();
         const input = page.locator("#robot-input");

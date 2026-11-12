@@ -164,7 +164,7 @@ const actions = {
       const dark = theme === "dark";
       themeToggle.setAttribute("aria-pressed", String(dark));
       themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
-      themeToggle.querySelector(".theme-text").textContent = dark ? "Light mode" : "Dark mode";
+      themeToggle.title = themeToggle.getAttribute("aria-label");
     });
     return `${theme === "dark" ? "Dark" : "Light"} mode is on.`;
   },
