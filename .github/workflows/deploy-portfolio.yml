@@ -22,7 +22,10 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+      - run: npm test
       - run: npm run build
+        env:
+          VITE_AGENT_WORKER_URL: ${{ vars.PORTFOLIO_AGENT_WORKER_URL }}
       - name: Check the static output
         run: |
           test -s dist/index.html

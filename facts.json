@@ -1,0 +1,22 @@
+[
+  {"id":"bio","text":"AI engineer in Bengaluru building LLM systems that keep working when things break.","source_url":"https://joemon24.github.io/portfolio/#main"},
+  {"id":"roles","text":"Open to Applied AI, agentic AI, and forward-deployed roles.","source_url":"https://joemon24.github.io/portfolio/#main"},
+  {"id":"internship","text":"Student Innovation Assistant (Intern) at CoCreate Ventures","source_url":"https://joemon24.github.io/portfolio/#main"},
+  {"id":"arc_retrieval","text":"Built hybrid retrieval with PostgreSQL full-text search, pgvector, and reciprocal rank fusion.","source_url":"https://joemon24.github.io/portfolio/#arc"},
+  {"id":"arc_integration","text":"Integrated OpenRouter, revalidated tenant access, and added regression tests.","source_url":"https://joemon24.github.io/portfolio/#arc"},
+  {"id":"arc_budget","text":"Retrieval now respects the caller’s context limit and a separate prompt budget.","source_url":"https://github.com/arc-ive/arc/pull/264"},
+  {"id":"arc_prs","text":"53 merged PRs across the team repository.","source_url":"https://github.com/arc-ive/arc/pulls?q=is%3Apr+is%3Amerged+author%3AJoemon24"},
+  {"id":"arc_stack","text":"Python, FastAPI, PostgreSQL, pgvector, OpenRouter","source_url":"https://joemon24.github.io/portfolio/#arc"},
+  {"id":"logly_problem","text":"A consumer can crash after storing an event and before analyzing it. Restarting must recover the incident without duplicating evidence.","source_url":"https://joemon24.github.io/portfolio/#logly"},
+  {"id":"logly_replay","text":"Built Linux log collection and hardened incident replay with deterministic event IDs and Kafka offsets that commit after analysis.","source_url":"https://joemon24.github.io/portfolio/#logly"},
+  {"id":"logly_result","text":"5 unique events, 1 incident. Live CI verified that recovery left the stored event untouched and advanced the committed offset.","source_url":"https://github.com/Joemon24/Logly/actions/runs/43017590957"},
+  {"id":"logly_stack","text":"Go, Kafka, Python, Elasticsearch, SQLite","source_url":"https://joemon24.github.io/portfolio/#logly"},
+  {"id":"emotion_task","text":"Classify short text into six emotion labels and serve predictions through an API.","source_url":"https://joemon24.github.io/portfolio/#emotion"},
+  {"id":"emotion_model","text":"Trained a Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service.","source_url":"https://joemon24.github.io/portfolio/#emotion"},
+  {"id":"emotion_metrics","text":"85.75% accuracy and 81.96% macro-F1 on 2,000 held-out samples.","source_url":"https://joemon24.github.io/portfolio/#emotion"},
+  {"id":"emotion_stack","text":"PyTorch, FastAPI, Docker","source_url":"https://joemon24.github.io/portfolio/#emotion"},
+  {"id":"fraiseql_fix","text":"Diagnosed a Rust benchmark compilation failure and arrived at the same fix as the maintainers.","source_url":"https://github.com/fraiseql/fraiseql-python/pull/491"},
+  {"id":"fraiseql_status","text":"The PR closed unmerged after they shipped an equivalent fix.","source_url":"https://github.com/fraiseql/fraiseql-python/pull/491"},
+  {"id":"churn","text":"Built a churn prediction pipeline and compared logistic regression, random forest, and XGBoost.","source_url":"https://joemon24.github.io/portfolio/#churn"},
+  {"id":"evals","text":"I’m working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.","source_url":"https://joemon24.github.io/portfolio/#about"}
+]

@@ -19,6 +19,12 @@ const accentOptions = document.querySelector("#accent-options");
 const contactActions = document.querySelector("#contact-actions");
 const contactCopy = document.querySelector("#contact-copy");
 const recruiter = document.querySelector("#recruiter-commands");
+const answer = document.querySelector("#agent-answer");
+const refusalCopy = document.querySelector("#refusal-copy");
+const resumeLink = document.querySelector("#agent-resume-link");
+const llmMode = document.querySelector("#llm-mode");
+const workerUrl = import.meta.env?.VITE_AGENT_WORKER_URL?.trim();
+let pendingSelection;
 const projects = [...document.querySelectorAll(".project-menu a")].map(link => ({
   name: link.textContent.trim(), id: link.hash.slice(1),
 }));
@@ -107,8 +113,17 @@ const actions = {
     destination = document.querySelector("#retrieval-demo summary");
     return `Ran the ARC sample “${label}” ${document.querySelector("#budget-status").textContent}`;
   },
-  open_resume(_, step) {
+  open_resume(_, step, panel, source) {
     const url = document.querySelector(".hero-links a[download]").href;
+    if (source && panel === consolePanel) {
+      step("offer(resume PDF)", "Preparing the resume link.", () => {
+        resumeLink.href = url;
+        resumeLink.hidden = false;
+        setCollapsed(false);
+        resumeLink.focus();
+      });
+      return "Open the resume PDF using the link.";
+    }
     step("open(resume PDF)", "Opening the resume PDF.", () => window.open(url, "_blank", "noopener"));
     return "Requested the resume PDF in a new tab.";
   },
@@ -165,7 +180,7 @@ const actions = {
   },
 };
 
-async function execute(panel, intent) {
+async function execute(panel, intent, source) {
   if (busy) return;
   const confirm = panel.querySelector("[data-confirm]");
   if (confirm) {
@@ -177,10 +192,14 @@ async function execute(panel, intent) {
     confirm.hidden = true;
   }
   if (dialog === panel) destination = null;
+  if (panel === consolePanel) resetAnswer();
   trace.replaceChildren();
+  if (source) appendTrace(source);
   if (!intent) {
     appendTrace("intent: unknown");
-    speak(panel, "I can’t do that yet. Try “show Logly”, “resume”, or choose a suggestion.");
+    speak(panel, source === "local fallback" ? "AI selector unavailable. Try “show Logly”, “resume”, or choose a suggestion."
+      : "I can’t do that yet. Try “show Logly”, “resume”, or choose a suggestion.");
+    setState("listening");
     return;
   }
   busy = true;
@@ -195,7 +214,7 @@ async function execute(panel, intent) {
     return action?.();
   }
   try {
-    const result = await actions[intent.id](intent.arg, step, panel);
+    const result = await actions[intent.id](intent.arg, step, panel, source);
     if (result) {
       appendTrace(`${steps.join(" → ")} ok`);
       if (dialog === panel || !panel.matches("dialog")) {
@@ -244,6 +263,7 @@ function openPanel(panel, trigger) {
   opener = trigger;
   destination = null;
   panel.querySelector("[data-confirm]").hidden = true;
+  if (panel === consolePanel) resetAnswer();
   speak(panel, panel === consolePanel ? "Ready to talk. What should I open?" : "");
   if (panel === consolePanel) {
     setCollapsed(false);
@@ -260,6 +280,7 @@ function openPanel(panel, trigger) {
 
 for (const panel of [consolePanel, palette]) {
   panel.addEventListener("close", () => {
+    if (panel === consolePanel) pendingSelection?.abort();
     const target = destination || opener;
     if (target && !target.matches("a, button, input, summary, [tabindex]")) target.tabIndex = -1;
     target?.focus({ preventScroll: true });
@@ -329,9 +350,86 @@ document.addEventListener("keydown", event => {
   }
 });
 
-document.querySelector("#robot-command").addEventListener("submit", event => {
+function resetAnswer() {
+  answer.hidden = refusalCopy.hidden = resumeLink.hidden = true;
+  answer.replaceChildren();
+}
+
+function renderSelection(selection) {
+  setCollapsed(false);
+  if (!selection.facts) {
+    appendTrace("selector: refuse");
+    speak(consolePanel, "That's not on my site");
+    refusalCopy.hidden = false;
+    refusalCopy.focus({ preventScroll: true });
+    return;
+  }
+  appendTrace(`selector: answer (${selection.facts.length} facts)`);
+  const list = document.createElement("ul");
+  for (const fact of selection.facts) {
+    const item = document.createElement("li");
+    const text = document.createElement("p");
+    text.textContent = fact.text;
+    const source = document.createElement("a");
+    source.href = fact.source_url;
+    source.target = "_blank";
+    source.rel = "noopener";
+    source.textContent = "Source ↗";
+    item.append(text, source);
+    list.append(item);
+  }
+  answer.append(list);
+  answer.hidden = false;
+  speak(consolePanel, `Selected ${selection.facts.length} portfolio ${selection.facts.length === 1 ? "fact" : "facts"} below.`);
+  answer.tabIndex = -1;
+  answer.focus();
+}
+
+document.querySelector("#llm-option").hidden = !workerUrl;
+refusalCopy.addEventListener("click", () => execute(consolePanel, { id: "copy_email" }));
+document.querySelector("#robot-command").addEventListener("submit", async event => {
   event.preventDefault();
-  if (input.value.trim()) execute(consolePanel, matchIntent(input.value, projects));
+  const question = input.value.trim();
+  if (!question || busy) return;
+  if (!workerUrl || !llmMode.checked) {
+    execute(consolePanel, matchIntent(question, projects));
+    return;
+  }
+
+  busy = true;
+  destination = null;
+  resetAnswer();
+  consolePanel.querySelector("[data-confirm]").hidden = true;
+  trace.replaceChildren();
+  appendTrace("selector: requesting");
+  const controller = new AbortController();
+  pendingSelection = controller;
+  setState("working");
+  setCollapsed(true, true);
+  speak(consolePanel, "Checking the portfolio facts…");
+  let selection;
+  let unavailable = false;
+  try {
+    const { selectWithWorker } = await import("./agent-remote.js");
+    selection = await selectWithWorker(workerUrl, question, controller.signal);
+  } catch {
+    unavailable = true;
+  } finally {
+    pendingSelection = null;
+    busy = false;
+  }
+  if (controller.signal.aborted || !consolePanel.open || dialog !== consolePanel) {
+    setState(dialog ? "listening" : "idle");
+    return;
+  }
+  if (unavailable) {
+    execute(consolePanel, matchIntent(question, projects), "local fallback");
+  } else if (selection.intent) {
+    execute(consolePanel, selection.intent, "selector: action");
+  } else {
+    renderSelection(selection);
+    setState("done");
+  }
 });
 consolePanel.addEventListener("click", event => {
   const button = event.target.closest("[data-command]");

@@ -237,8 +237,11 @@
       </div>
       <form id="robot-command">
         <label for="robot-input">Command</label>
+        <label id="llm-option" class="llm-option" hidden>
+          <input type="checkbox" id="llm-mode"> Use AI selector <span class="caption">Sends this question to Groq.</span>
+        </label>
         <div class="console-entry">
-          <input id="robot-input" name="command" maxlength="160" autocomplete="off" spellcheck="false" placeholder="e.g. show me your best work" required>
+          <input id="robot-input" name="command" maxlength="300" autocomplete="off" spellcheck="false" placeholder="e.g. show me your best work" required>
           <button type="submit">Run</button>
         </div>
       </form>
@@ -257,6 +260,9 @@
         <button type="button" data-command="accent red" aria-pressed="false">Red</button>
         <button type="button" data-command="accent blue" aria-pressed="false">Blue</button>
       </div>
+      <section id="agent-answer" aria-label="Answer from portfolio facts" hidden></section>
+      <button type="button" id="refusal-copy" hidden>Copy email</button>
+      <a id="agent-resume-link" target="_blank" rel="noopener" hidden>Open resume PDF</a>
       <button type="button" data-confirm hidden>Confirm copy</button>
       <section class="console-trace" aria-labelledby="trace-title">
         <h3 id="trace-title">Agent trace</h3>

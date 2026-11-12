@@ -1,0 +1,15 @@
+name = "joemon-portfolio-agent"
+main = "index.js"
+compatibility_date = "2026-11-12"
+workers_dev = true
+preview_urls = false
+
+[secrets]
+required = ["GROQ_API_KEY"]
+
+[[ratelimits]]
+name = "AGENT_RATE_LIMIT"
+namespace_id = "24112"
+  [ratelimits.simple]
+  limit = 12
+  period = 60

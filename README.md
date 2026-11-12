@@ -13,3 +13,36 @@ Push the source to the public `Joemon24/portfolio` repository on `main`. In **Se
 After connecting a custom domain, update the absolute `og:image` URL in `index.html` to point to it.
 
 Geist is bundled under the SIL Open Font License. The name uses custom pixel lettering. See `components/REACT-BITS-LICENSE.txt` for the React Bits component license.
+
+## Optional AI selector
+
+The robot's keyword matcher works without credentials. If configured, visitors can opt in via **Use AI selector** in the console. Only typed questions in this mode go to Groq, with the public portfolio facts. Buttons, command chips and keyboard shortcuts still use the local action registry. The model returns fact IDs or an allowlisted action with validated arguments. The site renders facts from its own copy of [facts.json](facts.json) and links to their sources.
+
+The Worker allows browser requests only from `https://joemon24.github.io`. It caps questions at 300 characters, uses a five-second deadline and applies a limit of 12 requests per minute per IP per Cloudflare location. CORS is a browser restriction, so the rate limit also applies to direct requests. Provider outages and rate limits fall back to local commands. Invalid model output returns a refusal. Copying an email address requires a separate click even if the model selects that action.
+
+To enable the selector, authenticate Wrangler for the target Cloudflare account, then run these commands from the repo root:
+
+```sh
+npx wrangler secret put GROQ_API_KEY --config worker/wrangler.toml
+npx wrangler deploy --config worker/wrangler.toml
+```
+
+Set the GitHub repository Actions **variable** `PORTFOLIO_AGENT_WORKER_URL` to the deployed HTTPS Worker URL ending in `/agent` and rebuild Pages. The browser build receives only the public URL. Keep the Groq key in the Worker secret. To turn the feature off, remove the Actions variable and rebuild.
+
+`npm test` runs the offline contract and proxy checks. The [45 evaluation questions](tests/questions.json) can be scored with either:
+
+```sh
+# With GROQ_API_KEY already set in your shell. Uses the Worker code without a deployed Worker.
+npm run eval -- --groq
+
+# End-to-end against the deployed Worker. Requests are paced below its per-IP limit.
+npm run eval -- --worker https://YOUR_WORKER.workers.dev/agent
+```
+
+The live evaluator reports semantic pass rate, request errors and p50/p95 latency. The localhost preview intentionally cannot call the deployed Worker directly because of the production-only origin policy.
+
+### Facts to confirm
+
+- **TODO:** Confirm the CoCreate Ventures internship start date and whether it is ongoing. The fact file includes the title and employer but omits the dates shown on the page pending confirmation.
+- **TODO:** Provide publishable Pingo details if you want the assistant to answer questions about it. The page currently only marks it as in progress.
+- **TODO:** Supply public evidence before adding unlisted skills, certifications, compensation preferences, or project metrics. The selector currently refuses those questions.
