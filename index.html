@@ -18,6 +18,22 @@
   <script type="module" src="./agent.js"></script>
 </head>
 <body>
+  <svg class="visually-hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="icon-email" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" d="M3 5h18v14H3z M3 6l9 7 9-7"/></symbol>
+    <symbol id="icon-linkedin" viewBox="0 0 24 24"><path fill="currentColor" d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4M3 10h4v11H3zm7 0h4v1.5c.8-1.2 2-1.7 3.4-1.7 3 0 3.6 2 3.6 4.7V21h-4v-6c0-1.2-.3-2-1.4-2-1.2 0-1.6 1-1.6 2v6h-4z"/></symbol>
+    <symbol id="icon-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.15-1.11-1.46-1.11-1.46-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03a9.57 9.57 0 0 1 5 0c1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.94.36.31.68.92.68 1.85v2.74c0 .26.18.57.69.47A10 10 0 0 0 12 2"/></symbol>
+
+    <symbol id="ryu-static" viewBox="0 0 64 64">
+      <g class="ryu-limb ryu-arm-a"><path fill="#050505" d="M10 34h11v18H10z"/><path fill="#b9b9b9" d="M13 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-arm-b"><path fill="#050505" d="M43 34h11v18H43z"/><path fill="#d3d3d3" d="M46 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-leg-a"><path fill="#050505" d="M20 47h11v15H20z"/><path fill="#b9b9b9" d="M23 49h5v9h-5z"/></g>
+      <g class="ryu-limb ryu-leg-b"><path fill="#050505" d="M33 47h11v15H33z"/><path fill="#d3d3d3" d="M36 49h5v9h-5z"/></g>
+      <path fill="#050505" d="M20 32h24v19H20zM29 2h6v8h-6zM12 11h40v25H12zM8 16h8v13H8zm40 0h8v13h-8z"/>
+      <path fill="#f3f3f3" d="M16 15h32v17H16zM24 36h16v11H24z"/>
+      <path fill="#050505" d="M19 18h26v11H19z"/><path fill="var(--accent)" d="M29 39h6v5h-6z"/>
+      <path class="ryu-eyes" fill="var(--accent)" d="M24 21h5v5h-5zm11 0h5v5h-5z"/>
+    </symbol>
+  </svg>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" id="top">
     <div class="shell topbar-inner">
@@ -32,7 +48,7 @@
           <button id="theme-toggle" class="palette-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span class="theme-icon" aria-hidden="true">◐</span><span class="theme-text">Dark mode</span></button>
           <span class="visually-hidden" data-feedback role="status"></span>
         </div>
-        <button id="nav-ryu" type="button" aria-label="Open Ryu" hidden><canvas width="24" height="24" aria-hidden="true"></canvas></button>
+        <button id="nav-ryu" type="button" aria-label="Open Ryu" hidden><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#ryu-static"/></svg></button>
         <button id="mobile-menu-toggle" type="button" aria-haspopup="dialog" hidden>Menu</button>
         <button id="palette-toggle" class="palette-toggle" type="button" hidden aria-keyshortcuts="Control+K Meta+K">Quick actions <kbd>Ctrl/⌘ K</kbd></button>
       </div>
@@ -45,16 +61,16 @@
         <div class="name-row">
           <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
           <button class="pixel-pet" type="button" aria-label="Open Ryu, Joemon’s portfolio assistant" aria-haspopup="dialog" aria-controls="robot-console" aria-expanded="false" aria-keyshortcuts="/" hidden>
-            <canvas width="24" height="24" aria-hidden="true"></canvas>
+            <svg viewBox="0 0 64 64" aria-hidden="true"><use href="#ryu-static"/></svg>
           </button>
         </div>
         <p>AI engineer in Bengaluru building LLM systems that keep working when things break. Open to Applied AI, agentic AI, and forward-deployed roles.</p>
         <p class="current-role"><strong>Student Innovation Assistant (Intern) at CoCreate Ventures</strong> · Sep 2025 to present</p>
         <div class="hero-links">
           <a class="primary-link" href="./assets/Joemon-Joy-Resume.pdf" download>Resume <span aria-hidden="true">↓</span><span class="file-type">PDF</span></a>
-          <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
-          <a href="mailto:joemonjoy241@gmail.com">Email <span class="arrow" aria-hidden="true">↗</span></a>
-          <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="social-tile" href="https://www.linkedin.com/in/joemon24/" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-linkedin"/></svg></a>
+          <a class="social-tile" href="mailto:joemonjoy241@gmail.com" aria-label="Email" title="Email"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-email"/></svg></a>
+          <a class="social-tile" href="https://github.com/Joemon24" aria-label="GitHub" title="GitHub" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-github"/></svg></a>
         </div>
       </header>
 
@@ -177,12 +193,18 @@
 
   <footer id="contact" class="footer">
     <section class="shell footer-inner" aria-labelledby="contact-title">
-      <div class="contact-assistant" id="recruiter-commands" hidden>
-        <div class="contact-pet">
-          <button id="footer-ryu" type="button" aria-label="Open Ryu"><canvas width="24" height="24" aria-hidden="true"></canvas></button>
-          <div><h2>Ask Ryu</h2><p class="caption">Joemon’s portfolio assistant</p></div>
-        </div>
-
+      <div class="contact-assistant contact-sprite" id="recruiter-commands" hidden>
+        <span class="contact-bubble">Click me to chat</span>
+        <button id="footer-ryu" type="button" aria-label="Chat with Ryu"><svg viewBox="0 0 64 64" aria-hidden="true">
+      <g class="ryu-limb ryu-arm-a"><path fill="#050505" d="M10 34h11v18H10z"/><path fill="#b9b9b9" d="M13 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-arm-b"><path fill="#050505" d="M43 34h11v18H43z"/><path fill="#d3d3d3" d="M46 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-leg-a"><path fill="#050505" d="M20 47h11v15H20z"/><path fill="#b9b9b9" d="M23 49h5v9h-5z"/></g>
+      <g class="ryu-limb ryu-leg-b"><path fill="#050505" d="M33 47h11v15H33z"/><path fill="#d3d3d3" d="M36 49h5v9h-5z"/></g>
+      <path fill="#050505" d="M20 32h24v19H20zM29 2h6v8h-6zM12 11h40v25H12zM8 16h8v13H8zm40 0h8v13h-8z"/>
+      <path fill="#f3f3f3" d="M16 15h32v17H16zM24 36h16v11H24z"/>
+      <path fill="#050505" d="M19 18h26v11H19z"/><path fill="var(--accent)" d="M29 39h6v5h-6z"/>
+      <path class="ryu-eyes" fill="var(--accent)" d="M24 21h5v5h-5zm11 0h5v5h-5z"/>
+    </svg></button>
       </div>
       <div class="contact-intro" id="contact-actions">
         <h2 id="contact-title">Contact me</h2>
@@ -194,8 +216,9 @@
         </div>
         <p class="caption" data-feedback role="status"></p>
         <div class="footer-links">
-          <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
-          <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
+          <a class="social-tile" href="mailto:joemonjoy241@gmail.com" aria-label="Email" title="Email"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-email"/></svg></a>
+          <a class="social-tile" href="https://www.linkedin.com/in/joemon24/" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-linkedin"/></svg></a>
+          <a class="social-tile" href="https://github.com/Joemon24" aria-label="GitHub" title="GitHub" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-github"/></svg></a>
         </div>
       </div>
     </section>
@@ -207,7 +230,7 @@
     <nav aria-label="Mobile navigation">
       <a href="#projects">Projects</a><a href="#about">About</a><a href="#contact">Contact</a>
       <a href="./assets/Joemon-Joy-Resume.pdf" download>Resume</a>
-      <div><a href="mailto:joemonjoy241@gmail.com">Email</a> <a href="https://www.linkedin.com/in/joemon24/">LinkedIn</a> <a href="https://github.com/Joemon24">GitHub</a></div>
+      <div><a class="social-tile" href="mailto:joemonjoy241@gmail.com" aria-label="Email" title="Email"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-email"/></svg></a> <a class="social-tile" href="https://www.linkedin.com/in/joemon24/" aria-label="LinkedIn" title="LinkedIn" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-linkedin"/></svg></a> <a class="social-tile" href="https://github.com/Joemon24" aria-label="GitHub" title="GitHub" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-github"/></svg></a></div>
     </nav>
   </dialog>
   <dialog id="command-palette" aria-labelledby="palette-title">
@@ -224,16 +247,17 @@
   </dialog>
   <dialog id="robot-console" aria-labelledby="robot-console-title">
     <header class="console-bar">
-      <h2 id="robot-console-title" class="visually-hidden">Ryu console</h2>
-      <button id="console-fold" type="button" aria-controls="console-body" aria-expanded="true">
+      <h2 id="robot-console-title">Ryu</h2>
+      <button id="console-fold" type="button" aria-label="Minimize Ryu" aria-controls="console-body" aria-expanded="true">
         <span class="fold-icon" aria-hidden="true">−</span>
-        <span class="fold-label">Ryu console</span>
+        <span class="fold-label visually-hidden">Back to Ryu</span>
       </button>
       <form method="dialog"><button type="submit" aria-label="Close Ryu console"><span class="close-mark" aria-hidden="true">×</span></button></form>
     </header>
     <p class="visually-hidden" data-feedback role="status">I’m Ryu, Joemon’s portfolio assistant. Ask me about his work.</p>
     <div class="console-body" id="console-body">
       <div class="ryu-scroll">
+        <p id="ryu-greeting">Hi, I’m Ryu. Ask me about Joemon’s work.</p>
         <div id="ryu-suggestions" class="console-chips" aria-label="Suggested questions" role="group">
           <button type="button" data-question="What roles is he open to?" data-fact="roles">What roles is he open to?</button>
           <button type="button" data-question="How does Logly recover?" data-fact="logly_replay">How does Logly recover?</button>
@@ -264,5 +288,19 @@
       </form>
     </div>
   </dialog>
+  <aside id="ryu-companion" aria-label="Ryu companion" hidden>
+    <button id="walker-chat" type="button" hidden>Click to chat with Ryu</button>
+    <button id="walker-ryu" type="button" aria-label="Chat with Ryu"><svg viewBox="0 0 64 64" aria-hidden="true">
+      <g class="ryu-limb ryu-arm-a"><path fill="#050505" d="M10 34h11v18H10z"/><path fill="#b9b9b9" d="M13 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-arm-b"><path fill="#050505" d="M43 34h11v18H43z"/><path fill="#d3d3d3" d="M46 37h5v12h-5z"/></g>
+      <g class="ryu-limb ryu-leg-a"><path fill="#050505" d="M20 47h11v15H20z"/><path fill="#b9b9b9" d="M23 49h5v9h-5z"/></g>
+      <g class="ryu-limb ryu-leg-b"><path fill="#050505" d="M33 47h11v15H33z"/><path fill="#d3d3d3" d="M36 49h5v9h-5z"/></g>
+      <path fill="#050505" d="M20 32h24v19H20zM29 2h6v8h-6zM12 11h40v25H12zM8 16h8v13H8zm40 0h8v13h-8z"/>
+      <path fill="#f3f3f3" d="M16 15h32v17H16zM24 36h16v11H24z"/>
+      <path fill="#050505" d="M19 18h26v11H19z"/><path fill="var(--accent)" d="M29 39h6v5h-6z"/>
+      <path class="ryu-eyes" fill="var(--accent)" d="M24 21h5v5h-5zm11 0h5v5h-5z"/>
+    </svg></button>
+  </aside>
+  <button id="walker-toggle" type="button" hidden>Hide Ryu</button>
 </body>
 </html>

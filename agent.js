@@ -1,3 +1,4 @@
+import "./ryu-companion.js";
 import "./mobile-ui.js";
 import { openProject, paintAgent, replayCrash } from "./portfolio.js";
 import { runRetrievalSample } from "./portfolio-extras.js";
@@ -19,6 +20,8 @@ const contactCopy = document.querySelector("#contact-copy");
 const recruiter = document.querySelector("#recruiter-commands");
 const message = document.querySelector("#ryu-message");
 const suggestions = document.querySelector("#ryu-suggestions");
+const greeting = document.querySelector("#ryu-greeting");
+const desktopShortcuts = matchMedia("(min-width: 900px) and (pointer: fine)");
 const suggestionToggle = document.querySelector("#ryu-suggestions-toggle");
 const siteRegions = [...document.querySelectorAll("body > :is(.skip-link, header, main, footer)")];
 const debug = new URLSearchParams(location.search).get("debug") === "1";
@@ -252,7 +255,9 @@ function setCollapsed(collapsed, focus = false) {
   consolePanel.classList.toggle("is-collapsed", collapsed);
   fold.setAttribute("aria-expanded", String(!collapsed));
   fold.querySelector(".fold-icon").textContent = collapsed ? "+" : "−";
-  setFoldLabel(collapsed ? "Back to Ryu" : "Minimize");
+  setFoldLabel("Back to Ryu");
+  fold.setAttribute("aria-label", collapsed ? "Back to Ryu" : "Minimize Ryu");
+  fold.querySelector(".fold-label").classList.toggle("visually-hidden", !collapsed);
   if (focus) fold.focus({ preventScroll: true });
 }
 
@@ -296,7 +301,9 @@ for (const panel of [consolePanel, palette]) {
     }
     const target = destination || opener;
     if (target && !target.matches("a, button, input, summary, [tabindex]")) target.tabIndex = -1;
-    target?.focus({ preventScroll: true });
+    if (target?.closest("#ryu-companion")) {
+      queueMicrotask(() => target.hidden ? robot.focus({ preventScroll: true }) : target.focus({ preventScroll: true }));
+    } else target?.focus({ preventScroll: true });
     if (destination) destination.scrollIntoView({ block: "nearest", behavior: "instant" });
     dialog = opener = destination = null;
     robot.setAttribute("aria-expanded", "false");
@@ -338,9 +345,9 @@ themeToggle.addEventListener("click", () => execute(themeControls, { id: "toggle
 contactCopy.addEventListener("click", () => execute(contactActions, { id: "copy_email" }));
 contactActions.querySelector("[data-confirm]").addEventListener("click", () =>
   execute(contactActions, { id: "copy_email", arg: true }));
-for (const id of ["nav-ryu", "footer-ryu"]) {
+for (const id of ["nav-ryu", "footer-ryu", "walker-ryu", "walker-chat"]) {
   const button = document.getElementById(id);
-  button.hidden = false;
+  if (id === "nav-ryu" || id === "footer-ryu") button.hidden = false;
   button.addEventListener("click", () => {
     if (dialog === consolePanel) {
       setCollapsed(false);
@@ -360,9 +367,10 @@ document.addEventListener("keydown", event => {
     consolePanel.close();
     return;
   }
-  const quick = event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.shiftKey;
   const editable = event.target.closest?.("input, textarea, select, [contenteditable]:not([contenteditable=false])");
-  const slash = event.key === "/" && !event.ctrlKey && !event.metaKey && !editable;
+  if (editable) return;
+  const quick = desktopShortcuts.matches && event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.shiftKey;
+  const slash = event.key === "/" && !event.ctrlKey && !event.metaKey;
   if (quick && dialog !== palette && !busy) {
     event.preventDefault();
     openQuickActions();
@@ -419,15 +427,37 @@ const updatePrivacy = () => { privacy.hidden = !workerUrl || !llmMode.checked; }
 llmMode.addEventListener("change", updatePrivacy);
 updatePrivacy();
 refusalCopy.addEventListener("click", () => execute(consolePanel, { id: "copy_email" }));
+function hideStarters() {
+  greeting.hidden = suggestions.hidden = true;
+  suggestionToggle.hidden = false;
+}
+
+async function localQuestion(question, source) {
+  const normalize = text => text.toLowerCase().trim().replace(/[?!.]+$/, "");
+  const starter = [...suggestions.querySelectorAll("[data-fact]")]
+    .find(button => normalize(button.dataset.question) === normalize(question));
+  if (!starter) {
+    execute(consolePanel, matchIntent(question, projects), source);
+    return;
+  }
+  busy = true;
+  resetAnswer();
+  try {
+    const { FACTS } = await import("./agent-contract.js");
+    if (consolePanel.open) renderSelection({ facts: [FACTS.get(starter.dataset.fact)] });
+  } finally {
+    busy = false;
+  }
+}
+
 document.querySelector("#robot-command").addEventListener("submit", async event => {
   event.preventDefault();
   const question = input.value.trim();
   if (!question || busy) return;
-  suggestions.hidden = true;
-  suggestionToggle.hidden = false;
+  hideStarters();
   input.value = "";
   if (!workerUrl || !llmMode.checked) {
-    execute(consolePanel, matchIntent(question, projects));
+    await localQuestion(question);
     return;
   }
 
@@ -457,7 +487,7 @@ document.querySelector("#robot-command").addEventListener("submit", async event 
     return;
   }
   if (unavailable) {
-    execute(consolePanel, matchIntent(question, projects), "local fallback");
+    await localQuestion(question, "local fallback");
   } else if (selection.intent) {
     execute(consolePanel, selection.intent, "selector: action");
   } else {
@@ -465,25 +495,12 @@ document.querySelector("#robot-command").addEventListener("submit", async event 
     setState("done");
   }
 });
-suggestions.addEventListener("click", async event => {
+suggestions.addEventListener("click", event => {
   const button = event.target.closest("[data-question]");
   if (!button || busy) return;
   input.focus({ preventScroll: true });
-  if (workerUrl && llmMode.checked) {
-    input.value = button.dataset.question;
-    document.querySelector("#robot-command").requestSubmit();
-    return;
-  }
-  busy = true;
-  suggestions.hidden = true;
-  suggestionToggle.hidden = false;
-  resetAnswer();
-  try {
-    const { FACTS } = await import("./agent-contract.js");
-    if (consolePanel.open) renderSelection({ facts: [FACTS.get(button.dataset.fact)] });
-  } finally {
-    busy = false;
-  }
+  input.value = button.dataset.question;
+  document.querySelector("#robot-command").requestSubmit();
 });
 palette.addEventListener("click", event => {
   const button = event.target.closest("[data-action]");

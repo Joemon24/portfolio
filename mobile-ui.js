@@ -11,12 +11,17 @@ matchMedia("(max-width: 640px)").addEventListener("change", event => {
 
 const viewport = window.visualViewport;
 if (viewport) {
+  let lastHeight, lastInset;
   const update = () => {
     const root = document.documentElement;
-    root.style.setProperty("--visual-height", `${viewport.height}px`);
-    root.style.setProperty("--keyboard-inset", `${Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop)}px`);
+    const height = Math.round(viewport.height);
+    const inset = Math.max(0, Math.round(document.documentElement.clientHeight - viewport.height - viewport.offsetTop));
+    if (height !== lastHeight) root.style.setProperty("--visual-height", `${height}px`);
+    if (inset !== lastInset) root.style.setProperty("--keyboard-inset", `${inset}px`);
+    lastHeight = height;
+    lastInset = inset;
   };
-  viewport.addEventListener("resize", update);
-  viewport.addEventListener("scroll", update);
+  viewport.addEventListener("resize", update, { passive: true });
+  viewport.addEventListener("scroll", update, { passive: true });
   update();
 }

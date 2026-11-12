@@ -51,7 +51,7 @@ img { display: block; max-width: 100%; }
 .opening { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 32px; padding-block: 64px 48px; }
 .name-row { display: flex; align-items: flex-end; gap: clamp(.4rem, 2vw, 1rem); }
 .pixel-pet { display: grid; place-items: center; flex: 0 0 auto; width: clamp(48px, 9vw, 86px); aspect-ratio: 1; padding: 0; margin-bottom: .15rem; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
-.pixel-pet canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.pixel-pet svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .identity h1 { min-width: 0; font: 400 clamp(3.5rem, 7.4vw, 7rem)/1.05 var(--pixel); text-transform: uppercase; letter-spacing: -.01em; }
 .identity > p { max-width: 66ch; margin-top: 1.1rem; font-size: 18px; font-weight: 600; }
@@ -420,7 +420,7 @@ dialog { background: var(--surface); }
   color: var(--ink);
 }
 :root[data-theme="dark"] .project-menu a[aria-current="true"]:focus-visible { outline-color: var(--ink); }
-:root[data-theme="dark"] :is(.pixel-pet, .contact-pet) canvas {
+:root[data-theme="dark"] :is(.pixel-pet, .contact-sprite) svg {
   filter: drop-shadow(0 0 1px #f3f4f4);
 }
 #agent-trace:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -475,8 +475,8 @@ body { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .replay button:disabled { opacity: 1; background: var(--hover); color: var(--ink); cursor: wait; }
 #footer-ryu { min-width: 44px; padding: 0; }
 #footer-ryu:active, #nav-ryu:active { transform: translate(2px, 2px); }
-#footer-ryu canvas, #nav-ryu canvas { display: block; width: 44px; height: 44px; image-rendering: pixelated; }
-:root[data-theme="dark"] #nav-ryu canvas { filter: drop-shadow(0 0 1px var(--ink)); }
+#footer-ryu svg, #nav-ryu svg { display: block; width: 44px; height: 44px; image-rendering: pixelated; }
+:root[data-theme="dark"] #nav-ryu svg { filter: drop-shadow(0 0 1px var(--ink)); }
 
 #robot-console { width: min(420px, 38vw); }
 #robot-console.is-collapsed { width: auto; }
@@ -536,4 +536,76 @@ body { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .metrics { padding-block: 4px; }
   .metrics a { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
   .metrics strong { font-size: 24px; color: #050505; background: var(--accent); padding-inline: 4px; }
+}
+
+/* Explicit drawer height gives the flex body room even when the chat is empty. */
+#robot-console .console-body { flex: 1 1 auto; }
+#robot-console { margin: 0; }
+.console-bar h2 { margin-right: auto; font: 600 16px/24px ui-monospace, monospace; }
+#console-fold { flex: 0 0 auto; justify-content: center; }
+#robot-console.is-collapsed #robot-console-title { display: none; }
+#robot-input { font-size: 16px; }
+#ryu-greeting { font-size: 14px; }
+@media (min-width: 900px) {
+  #robot-console { inset: auto 16px 16px auto; height: min(60dvh, 520px); max-height: calc(100dvh - 32px); }
+  #robot-console.is-collapsed { height: auto; }
+}
+@media (max-width: 899px) {
+  #robot-console:not(.is-collapsed) { min-height: min(185px, var(--visual-height, 100dvh)); }
+}
+.social-tile, .hero-links .social-tile, .footer-links .social-tile {
+  display: inline-grid; place-items: center; width: 44px; min-width: 44px; min-height: 44px;
+  height: 44px; border: 1px solid var(--ink); background: #050505; color: var(--accent);
+}
+:root[data-theme="dark"] .social-tile { background: #141517; }
+.social-tile:is(:hover, :focus-visible), :root[data-theme="dark"] .social-tile:is(:hover, :focus-visible) {
+  background: var(--accent); color: #050505;
+}
+.social-tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.social-tile svg { width: 21px; height: 21px; }
+.contact-sprite { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.contact-bubble, #walker-chat { background: var(--surface); color: var(--ink); border: 1px solid var(--ink); padding: 5px 8px; box-shadow: 2px 2px var(--ink); font: 600 12px/18px var(--body); }
+#footer-ryu { padding: 4px; background: var(--surface); border: 2px solid var(--ink); cursor: pointer; }
+#footer-ryu:hover { background: var(--hover); }
+#footer-ryu svg { display: block; width: 88px; height: 88px; }
+#ryu-companion {
+  position: fixed; left: 0; bottom: max(12px, env(safe-area-inset-bottom));
+  width: 64px; z-index: 4; pointer-events: none;
+}
+#walker-ryu, #walker-chat, #walker-toggle { cursor: pointer; pointer-events: auto; }
+#walker-ryu {
+  display: block; width: 64px; height: 64px; padding: 0; background: transparent;
+  border: 0; color: var(--ink);
+}
+#walker-ryu svg { display: block; width: 100%; height: 100%; transform: scaleX(var(--face, 1)); }
+#walker-chat { position: absolute; bottom: calc(100% + 8px); right: 0; min-height: 44px; width: 132px; }
+#ryu-companion:not([hidden]) #walker-chat { max-width: calc(100vw - 24px); }
+#walker-toggle {
+  position: fixed; bottom: max(12px, env(safe-area-inset-bottom)); right: 12px; z-index: 4;
+  min-height: 44px; padding: 4px 8px; font: 600 12px/18px var(--body); color: var(--ink);
+  background: var(--surface); border: 1px solid var(--ink);
+}
+body.has-ryu-companion { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+.ryu-limb { transform-box: fill-box; transform-origin: center top; }
+.ryu-eyes { transform-box: fill-box; transform-origin: center; transform: translate(var(--pupil-x, 0px), var(--pupil-y, 0px)); }
+@media (prefers-reduced-motion: no-preference) {
+  .contact-sprite.in-view #footer-ryu { animation: ryu-hop 3.2s infinite; }
+  #walker-ryu:not(.walking) svg { animation: ryu-bob 2.8s ease-in-out infinite; }
+  #walker-ryu:not(.walking) .ryu-eyes { animation: ryu-blink 4.6s infinite; }
+  #walker-ryu.walking .ryu-limb { animation: ryu-stride .5s ease-in-out infinite alternate; }
+  #walker-ryu.walking :is(.ryu-arm-a, .ryu-leg-b) { animation-delay: -.5s; }
+}
+@keyframes ryu-hop { 0%, 80%, 100% { transform: translateY(0); } 90% { transform: translateY(-5px); } }
+@keyframes ryu-bob { 50% { transform: translateY(-2px) scaleX(var(--face, 1)); } }
+@keyframes ryu-blink { 0%, 93%, 100% { opacity: 1; } 95%, 97% { opacity: 0; } }
+@keyframes ryu-stride { from { transform: rotate(-19deg); } to { transform: rotate(19deg); } }
+@media (min-width: 900px) and (pointer: fine) {
+  #walker-chat { right: auto; left: clamp(-68px, calc(100vw - 160px - var(--walker-x, 0px)), 0px); }
+}
+@media (pointer: coarse), (max-width: 899px) {
+  #ryu-companion { left: auto; right: 12px; }
+  #walker-toggle { right: auto; left: 12px; }
+}
+@media (max-width: 640px) {
+  .hero-links .social-tile { justify-self: center; }
 }
