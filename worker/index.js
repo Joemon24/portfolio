@@ -127,6 +127,7 @@ async function select(question, env, signal) {
     }),
   });
   if (!response.ok) {
+    console.warn("Ryu upstream HTTP status:", response.status);
     void response.body?.cancel().catch(() => {});
     return respond(response.status === 429 ? 429 : 502, refusal(), true);
   }
@@ -161,6 +162,7 @@ export default {
     const ip = request.headers.get("CF-Connecting-IP");
     if (!ip || !env.GROQ_API_KEY || !env.AGENT_RATE_LIMIT) return respond(503, refusal(), true);
     const signal = AbortSignal.timeout(TIMEOUT_MS);
+    let stage = "rate-limit";
     try {
       signal.throwIfAborted();
       const rate = await withDeadline(env.AGENT_RATE_LIMIT.limit({ key: ip }), signal);
@@ -179,8 +181,10 @@ export default {
         return respond(400, refusal(), true);
       }
       signal.throwIfAborted();
+      stage = "groq-fetch";
       return await select(input.question.trim(), env, signal);
     } catch {
+      console.warn("Ryu request failed:", stage, signal.aborted ? "deadline" : "exception");
       return respond(signal.aborted ? 504 : 502, refusal(), true);
     }
   },
