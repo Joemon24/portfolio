@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 8765 --strictPort",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1 --port 8765 --strictPort"
+    "preview": "vite preview --host 127.0.0.1 --port 8765 --strictPort",
+    "test": "node --test tests/*.test.js",
+    "eval": "node tests/evaluate.js"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.4.0",

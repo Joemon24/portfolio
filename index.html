@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#FFFFFF">
-  <meta name="description" content="Joemon Joy, AI Engineer in Bengaluru. Retrieval, model integrations, and reliability testing for AI systems.">
+  <meta name="description" content="Joemon Joy, AI engineer in Bengaluru building reliable LLM systems. Projects in retrieval, model integration, and failure recovery.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Joemon Joy | AI Engineer">
-  <meta property="og:description" content="Selected work in retrieval, AI agent evaluations, and backend reliability.">
+  <meta property="og:description" content="Joemon Joy, AI engineer in Bengaluru building reliable LLM systems. Projects in retrieval, model integration, and failure recovery.">
   <meta property="og:image" content="https://joemon24.github.io/portfolio/assets/portfolio-preview.png">
   <meta property="og:image:alt" content="Joemon Joy in pixel lettering, with the subtitle AI Engineer.">
   <meta name="twitter:card" content="summary_large_image">
@@ -15,11 +15,10 @@
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="preload" href="./assets/type/joemon-arcade.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./portfolio.js"></script>
-  <script type="module" src="./src/portfolio-ui.jsx"></script>
+  <script type="module" src="./agent.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#projects">Skip to projects</a>
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" id="top">
     <div class="shell topbar-inner">
       <div id="card-nav-root"></div>
@@ -28,20 +27,27 @@
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
       </nav>
+      <div class="nav-actions">
+        <div id="theme-controls" hidden>
+          <button id="theme-toggle" class="palette-toggle" type="button" aria-pressed="false">Dark mode</button>
+          <span class="visually-hidden" data-feedback role="status"></span>
+        </div>
+        <button id="palette-toggle" class="palette-toggle" type="button" hidden aria-keyshortcuts="Control+K Meta+K">Quick actions <kbd>Ctrl/⌘ K</kbd></button>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
     <div class="shell opening">
       <header class="identity">
         <div class="name-row">
           <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
-          <button class="pixel-pet" type="button" aria-label="Make the pixel robot wave" hidden>
+          <button class="pixel-pet" type="button" aria-label="Open Ryu, Joemon’s portfolio assistant" aria-haspopup="dialog" aria-controls="robot-console" aria-expanded="false" aria-keyshortcuts="/" hidden>
             <canvas width="24" height="24" aria-hidden="true"></canvas>
           </button>
-          <span class="visually-hidden" role="status" id="pet-status"></span>
         </div>
         <p>AI engineer in Bengaluru building LLM systems that keep working when things break. Open to Applied AI, agentic AI, and forward-deployed roles.</p>
+        <p class="current-role"><strong>Student Innovation Assistant (Intern) at CoCreate Ventures</strong> · Sep 2025 to present</p>
         <div class="hero-links">
           <a class="primary-link" href="./assets/Joemon-Joy-Resume.pdf" download>Resume <span aria-hidden="true">↓</span><span class="file-type">PDF</span></a>
           <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
@@ -50,18 +56,16 @@
         </div>
       </header>
 
-      <section id="about" class="about-section" aria-labelledby="about-title">
-        <h2 id="about-title">About me</h2>
-        <p>I build LLM applications and the backend around them: retrieval, model integration, access control, and the tests that show where they fail.</p>
-        <p class="experience"><strong>Student Innovation Assistant, Research Intern (AI/ML) · CoCreate Ventures</strong><br>ARC engineering contributions · Aug–Sep 2026</p>
-        <p>On ARC, I contributed hybrid PostgreSQL search, OpenRouter integration, and tenant-access revalidation. I also enforced the caller’s retrieval limit and added a prompt budget so context assembly stayed within both bounds.</p>
-        <p>Logly recovers from a forced consumer crash without duplicating events. I’m now working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.</p>
-      </section>
+      <ul class="metrics" aria-label="Selected project results">
+        <li><a href="#arc"><strong>53</strong> merged PRs</a></li>
+        <li><a href="#logly"><strong>5</strong> events → <strong>1</strong> incident</a></li>
+      </ul>
     </div>
 
     <section id="projects" class="project-select shell" aria-labelledby="projects-title">
       <h2 id="projects-title">Projects</h2>
       <div class="arcade" id="project-details">
+        <div class="window-title"><span>Project case studies</span><span class="window-controls" aria-hidden="true"><i></i><i></i><i></i></span></div>
         <nav class="project-menu" aria-label="Project selection">
           <div class="menu-group">
             <p>Featured</p>
@@ -69,32 +73,52 @@
               <li><a href="#arc">ARC</a></li>
               <li><a href="#logly">Logly</a></li>
               <li><a href="#emotion">Emotion API</a></li>
+              <li><a href="#pingo">Pingo</a></li>
             </ul>
           </div>
-          <details class="menu-group secondary-menu">
-            <summary>More work</summary>
-            <ul>
-              <li><a href="#fraiseql">FraiseQL PR</a></li>
-              <li><a href="#churn">Bank Churn</a></li>
-              <li><a href="#mapreduce">MapReduce</a></li>
-            </ul>
-          </details>
         </nav>
-        <div class="project-panels">
+        <div class="project-panels" role="region" aria-label="Selected case study" tabindex="0">
           <article class="project-panel featured" id="arc" aria-labelledby="arc-title">
             <h3 id="arc-title">ARC</h3>
+            <p class="project-lead">Retrieval now respects the caller’s context limit and a separate prompt budget. <a href="https://github.com/arc-ive/arc/pull/264">PR #264</a></p>
+            <p class="experience"><strong>Student Innovation Assistant (Intern) · CoCreate Ventures</strong></p>
             <dl class="case-facts">
-              <div><dt>My work</dt><dd>Implemented OpenRouter integration and hybrid retrieval with full-text search, pgvector, and reciprocal rank fusion. Added tenant-access revalidation and regression tests.</dd></div>
-              <div><dt>Result</dt><dd><strong>53 merged pull requests</strong> in the team repository. In <a href="https://github.com/arc-ive/arc/pull/264">PR #264</a>, I capped the context set at the caller’s requested limit and added a separate prompt budget.</dd></div>
+              <div><dt>Problem</dt><dd>Relevant search results had to fit both the caller’s requested context limit and the prompt budget.</dd></div>
+              <div><dt>What I did</dt><dd>Built hybrid retrieval with PostgreSQL full-text search, pgvector, and reciprocal rank fusion. Integrated OpenRouter, revalidated tenant access, and added regression tests.</dd></div>
+              <div><dt>Result</dt><dd>PR #264 enforced both limits during context assembly. <strong>53 merged PRs</strong> across the team repository.</dd></div>
               <div><dt>Stack</dt><dd>Python, FastAPI, PostgreSQL, pgvector, OpenRouter</dd></div>
             </dl>
-            <div class="links"><a href="https://github.com/arc-ive/arc">Team repository <span class="arrow" aria-hidden="true">↗</span></a><a href="https://github.com/arc-ive/arc/pulls?q=is%3Apr+is%3Amerged+author%3AJoemon24">Merged pull requests <span class="arrow" aria-hidden="true">↗</span></a></div>
+            <figure class="arc-diagram">
+              <svg viewBox="0 0 320 156" role="img" aria-labelledby="arc-diagram-title">
+                <title id="arc-diagram-title">Full-text search and pgvector feed reciprocal rank fusion, then a prompt budget limits context before OpenRouter.</title>
+                <g class="diagram-boxes"><rect x="8" y="1" width="144" height="24"/><rect x="168" y="1" width="144" height="24"/><rect x="64" y="45" width="192" height="24"/><rect x="64" y="88" width="192" height="24"/><rect x="64" y="131" width="192" height="24"/></g>
+                <path class="diagram-lines" d="M80 25v9h160v-9 M160 34v10m-4-4 4 4 4-4 M160 69v18m-4-4 4 4 4-4 M160 112v18m-4-4 4 4 4-4"/>
+                <g text-anchor="middle"><text x="80" y="18">Full-text search</text><text x="240" y="18">pgvector</text><text x="160" y="62">Reciprocal rank fusion</text><text x="160" y="105">Prompt budget</text><text x="160" y="148">OpenRouter</text></g>
+              </svg>
+            </figure>
+            <details class="retrieval" id="retrieval-demo">
+              <summary>Try the ARC retrieval visualizer</summary>
+              <p class="caption">Illustrative query, ranks, and token counts. Runs locally in your browser.</p>
+              <form id="retrieval-controls" hidden>
+                <label>Query <select name="query"><option value="access">How do I request workspace access?</option><option value="incident">How do I escalate an incident?</option></select></label>
+                <label>Prompt budget <input id="budget" name="budget" type="range" min="0" max="500" step="10" value="250"><output id="budget-limit" for="budget">250 tokens</output></label>
+              </form>
+              <div class="retrieval-ranks" id="retrieval-ranks" hidden>
+                <div><h4>Full-text results</h4><ol id="lexical-ranks"></ol></div>
+                <div><h4>Vector results</h4><ol id="vector-ranks"></ol></div>
+                <div><h4>Fused ranking</h4><ol id="fused-ranks"></ol></div>
+              </div>
+              <progress id="budget-used" aria-label="Prompt budget used" hidden></progress>
+              <p id="budget-status" class="caption" role="status"></p>
+              <noscript>Enable JavaScript to try the sample.</noscript>
+            </details>
+            <div class="links" aria-label="ARC links"><a href="https://github.com/arc-ive/arc">Team repository <span class="arrow" aria-hidden="true">↗</span></a><a href="https://github.com/arc-ive/arc/pulls?q=is%3Apr+is%3Amerged+author%3AJoemon24">Merged pull requests <span class="arrow" aria-hidden="true">↗</span></a></div>
           </article>
           <article class="project-panel featured" id="logly" aria-labelledby="logly-title">
             <h3 id="logly-title">Logly</h3>
             <dl class="case-facts">
               <div><dt>Problem</dt><dd>A consumer can crash after storing an event and before analyzing it. Restarting must recover the incident without duplicating evidence.</dd></div>
-              <div><dt>My work</dt><dd>Built Linux log collection and hardened incident replay with deterministic event IDs and Kafka offsets that commit after analysis.</dd></div>
+              <div><dt>What I did</dt><dd>Built Linux log collection and hardened incident replay with deterministic event IDs and Kafka offsets that commit after analysis.</dd></div>
               <div><dt>Result</dt><dd><strong>5 unique events, 1 incident.</strong> Live CI verified that recovery left the stored event untouched and advanced the committed offset.</dd></div>
               <div><dt>Stack</dt><dd>Go, Kafka, Python, Elasticsearch, SQLite</dd></div>
             </dl>
@@ -111,7 +135,7 @@
               </ol>
               <p id="replay-status" class="replay-status" role="status">Recovery produced one incident from five unique events.</p>
             </section>
-            <div class="links">
+            <div class="links" aria-label="Logly links">
               <a href="https://joemon24.github.io/Logly/lab.html">Simulation lab <span class="arrow" aria-hidden="true">↗</span></a>
               <a href="https://github.com/Joemon24/Logly">Source <span class="arrow" aria-hidden="true">↗</span></a>
               <a href="https://github.com/Joemon24/Logly/actions/runs/43017590957">CI test run <span class="arrow" aria-hidden="true">↗</span></a>
@@ -119,40 +143,132 @@
           </article>
           <article class="project-panel" id="emotion" aria-labelledby="emotion-title">
             <h3 id="emotion-title">Emotion API</h3>
-            <p>Trained a six-class Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service. It reached <strong>85.75% accuracy</strong> and <strong>81.96% macro-F1</strong> on 2,000 held-out samples.</p>
-            <div class="links"><a href="https://github.com/Joemon24/emotion-classification">Source <span class="arrow" aria-hidden="true">↗</span></a><a href="https://emotion-classification-z9uu.onrender.com/docs">API docs <span class="arrow" aria-hidden="true">↗</span></a></div>
+            <dl class="case-facts">
+              <div><dt>Problem</dt><dd>Classify short text into six emotion labels and serve predictions through an API.</dd></div>
+              <div><dt>What I did</dt><dd>Trained a Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service.</dd></div>
+              <div><dt>Result</dt><dd><strong>85.75% accuracy</strong> and 81.96% macro-F1 on 2,000 held-out samples.</dd></div>
+              <div><dt>Stack</dt><dd>PyTorch, FastAPI, Docker</dd></div>
+            </dl>
+            <div class="links" aria-label="Emotion API links"><a href="https://github.com/Joemon24/emotion-classification">Source <span class="arrow" aria-hidden="true">↗</span></a><a href="https://emotion-classification-z9uu.onrender.com/docs">API docs <span class="arrow" aria-hidden="true">↗</span></a></div>
           </article>
-          <article class="project-panel" id="fraiseql" aria-labelledby="fraiseql-title">
-            <h3 id="fraiseql-title">FraiseQL</h3>
-            <p>Submitted a Rust benchmark compilation fix and broader CI checks. The PR closed unmerged after the maintainers shipped an equivalent fix.</p>
-            <div class="links"><a href="https://github.com/fraiseql/fraiseql-python/pull/491">View pull request <span class="arrow" aria-hidden="true">↗</span></a></div>
-          </article>
-          <article class="project-panel" id="churn" aria-labelledby="churn-title">
-            <h3 id="churn-title">Bank Churn</h3>
-            <p>Built a customer churn prediction pipeline with exploratory analysis, feature engineering, and comparisons across logistic regression, random forest, and XGBoost.</p>
-            <div class="links"><a href="https://github.com/Joemon24/bank-customer-churn-ml">View source <span class="arrow" aria-hidden="true">↗</span></a></div>
-          </article>
-          <article class="project-panel" id="mapreduce" aria-labelledby="mapreduce-title">
-            <h3 id="mapreduce-title">MapReduce</h3>
-            <p>Compared Hadoop workloads in Docker containers and virtual machines, tracking CPU, memory, and execution time.</p>
-            <div class="links"><a href="mailto:joemonjoy241@gmail.com?subject=MapReduce%20walkthrough">Request a walkthrough</a></div>
+          <article class="project-panel featured" id="pingo" aria-labelledby="pingo-title">
+            <h3 id="pingo-title">Pingo</h3>
+            <p class="project-status">In progress</p>
           </article>
         </div>
+        <section class="more-work" aria-labelledby="more-work-title">
+          <h3 id="more-work-title">More work</h3>
+          <ul>
+            <li id="fraiseql"><a href="https://github.com/fraiseql/fraiseql-python/pull/491">FraiseQL PR</a> · Diagnosed a Rust benchmark compilation failure and arrived at the same fix as the maintainers. The PR closed unmerged after they shipped an equivalent fix.</li>
+            <li id="churn"><a href="https://github.com/Joemon24/bank-customer-churn-ml">Bank Churn</a> · Built a churn prediction pipeline and compared logistic regression, random forest, and XGBoost.</li>
+          </ul>
+        </section>
       </div>
+    </section>
+
+    <section id="about" class="about-section shell" aria-labelledby="about-title">
+      <h2 id="about-title">About me</h2>
+      <p class="about-statement">I build retrieval and model integrations.<br>I test what happens when they fail.</p>
+      <p>I’m working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.</p>
     </section>
   </main>
 
   <footer id="contact" class="footer">
     <section class="shell footer-inner" aria-labelledby="contact-title">
-      <div class="contact-intro">
+      <div class="contact-assistant" id="recruiter-commands" hidden>
+        <div class="contact-pet">
+          <canvas width="24" height="24" aria-hidden="true"></canvas>
+          <div><h2>Ask Ryu</h2><p class="caption">Joemon’s portfolio assistant</p></div>
+        </div>
+        <div class="console-chips" role="group" aria-label="Recruiter questions">
+          <button type="button" data-command="show me your best work">What’s your best work?</button>
+          <button type="button" data-command="break something">How does Logly recover?</button>
+          <button type="button" data-command="run retrieval for tenant access">How does ARC retrieve context?</button>
+          <button type="button" data-command="resume">Can I see your resume?</button>
+        </div>
+      </div>
+      <div class="contact-intro" id="contact-actions">
         <h2 id="contact-title">Contact me</h2>
-        <p>For roles, project questions, or collaboration, email me at <a href="mailto:joemonjoy241@gmail.com">joemonjoy241@gmail.com</a>.</p>
+        <p>Hiring for applied or agentic AI roles?</p>
+        <div class="contact-buttons">
+          <a class="primary-link" href="mailto:joemonjoy241@gmail.com">Email me <span class="arrow" aria-hidden="true">↗</span></a>
+          <button id="contact-copy" type="button" hidden>Copy email</button>
+          <button type="button" data-confirm hidden>Confirm copy</button>
+        </div>
+        <p class="caption" data-feedback role="status"></p>
         <div class="footer-links">
           <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
           <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
+    <div class="shell footer-credit">Joemon Joy <a href="#top">Back to top ↑</a></div>
   </footer>
+
+  <dialog id="command-palette" aria-labelledby="palette-title">
+    <form method="dialog"><h2 id="palette-title">Quick actions</h2><button aria-label="Close quick actions">Close <span class="close-mark" aria-hidden="true">×</span></button></form>
+    <ul>
+      <li><button type="button" data-action="go_section" data-arg="projects">Go to Projects</button></li>
+      <li><button type="button" data-action="go_section" data-arg="about">Go to About</button></li>
+      <li><button type="button" data-action="go_section" data-arg="contact">Go to Contact</button></li>
+      <li><button type="button" data-action="open_resume">Open resume PDF</button></li>
+      <li><button type="button" data-action="copy_email">Copy email address</button></li>
+    </ul>
+    <p class="caption" data-feedback role="status"></p>
+    <button type="button" data-confirm hidden>Confirm copy</button>
+  </dialog>
+  <dialog id="robot-console" aria-labelledby="robot-console-title">
+    <header class="console-bar">
+      <h2 id="robot-console-title" class="visually-hidden">Ryu console</h2>
+      <button id="console-fold" type="button" aria-controls="console-body" aria-expanded="true">
+        <span class="fold-icon" aria-hidden="true">−</span>
+        <span class="fold-label">Ryu console</span>
+      </button>
+      <form method="dialog"><button type="submit" aria-label="Close Ryu console"><span class="close-mark" aria-hidden="true">×</span></button></form>
+    </header>
+    <p class="visually-hidden" data-feedback role="status">I’m Ryu, Joemon’s portfolio assistant. Ask me about his work.</p>
+    <div class="console-body" id="console-body">
+      <div class="console-speech">
+        <canvas width="24" height="24" aria-hidden="true"></canvas>
+        <div>
+          <p class="console-state" aria-hidden="true">Listening</p>
+          <p class="console-bubble" aria-hidden="true">I’m Ryu, Joemon’s portfolio assistant. Ask me about his work.</p>
+        </div>
+      </div>
+      <form id="robot-command">
+        <label for="robot-input">Command</label>
+        <label id="llm-option" class="llm-option" hidden>
+          <input type="checkbox" id="llm-mode"> Use AI selector <span class="caption">Sends this question to Groq.</span>
+        </label>
+        <div class="console-entry">
+          <input id="robot-input" name="command" maxlength="300" autocomplete="off" spellcheck="false" placeholder="e.g. show me your best work" required>
+          <button type="submit">Run</button>
+        </div>
+      </form>
+      <div class="console-chips" aria-label="Suggested commands" role="group">
+        <button type="button" data-command="show me your best work">Best work</button>
+        <button type="button" data-command="break something">Replay crash</button>
+        <button type="button" data-command="run retrieval for tenant access">Run retrieval</button>
+        <button type="button" data-command="resume">Resume</button>
+        <button type="button" data-command="hire him">Hiring</button>
+        <button type="button" data-command="help">Help</button>
+        <button type="button" id="console-theme" data-command="dark mode">Dark mode</button>
+        <button type="button" id="console-accent" aria-controls="accent-options" aria-expanded="false">Accent</button>
+      </div>
+      <div id="accent-options" class="console-chips" role="group" aria-label="Accent colors" hidden>
+        <button type="button" data-command="accent lime" aria-pressed="true">Lime</button>
+        <button type="button" data-command="accent red" aria-pressed="false">Red</button>
+        <button type="button" data-command="accent blue" aria-pressed="false">Blue</button>
+      </div>
+      <section id="agent-answer" aria-label="Answer from portfolio facts" hidden></section>
+      <button type="button" id="refusal-copy" hidden>Copy email</button>
+      <a id="agent-resume-link" target="_blank" rel="noopener" hidden>Open resume PDF</a>
+      <button type="button" data-confirm hidden>Confirm copy</button>
+      <section class="console-trace" aria-labelledby="trace-title">
+        <h3 id="trace-title">Agent trace</h3>
+        <ol id="agent-trace" tabindex="0" aria-label="Command trace history"></ol>
+      </section>
+    </div>
+  </dialog>
 </body>
 </html>
