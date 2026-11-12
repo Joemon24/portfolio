@@ -219,7 +219,7 @@
         </div>
       </div>
     </section>
-    <div class="shell footer-credit">Joemon Joy <a href="#top">Back to top ↑</a></div>
+    <div class="shell footer-credit">Joemon Joy <button id="walker-restore" type="button" hidden>Show Ryu</button> <a href="#top">Back to top ↑</a></div>
   </footer>
 
   <dialog id="mobile-menu" aria-label="Site menu">
@@ -284,6 +284,8 @@
       </form>
     </div>
   </dialog>
+  <p id="ryu-hint-announcement" class="visually-hidden" aria-live="polite"></p>
+  <pre id="ryu-visibility-debug" hidden aria-label="Ryu visibility diagnostics"></pre>
   <aside id="ryu-companion" aria-label="Ryu companion" hidden>
     <button id="walker-chat" type="button" hidden>Click to chat with Ryu</button>
     <button id="walker-ryu" type="button" aria-label="Chat with Ryu"><svg viewBox="0 0 64 64" aria-hidden="true">

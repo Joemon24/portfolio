@@ -603,3 +603,19 @@ body.has-ryu-companion { padding-bottom: calc(80px + env(safe-area-inset-bottom)
 @keyframes ryu-blink { 0%, 93%, 100% { opacity: 1; } 95%, 97% { opacity: 0; } }
 .metrics a { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
 .metrics strong { font-size: 24px; color: #050505; background: var(--accent); padding-inline: 4px; }
+
+.ryu-ios #ryu-companion { bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.ryu-ios body.has-ryu-companion { padding-bottom: calc(144px + env(safe-area-inset-bottom, 0px)); }
+#walker-chat { width: max-content; max-width: min(180px, calc(100vw - 32px)); font: 600 14px/20px var(--body); }
+#walker-chat::after {
+  content: ""; position: absolute; right: 24px; bottom: -6px; width: 10px; height: 10px;
+  background: var(--surface); border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink);
+  transform: rotate(45deg); pointer-events: none;
+}
+#walker-restore { min-height: 44px; color: var(--ink); background: var(--surface); border: 1px solid var(--ink); cursor: pointer; }
+#ryu-visibility-debug {
+  position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 5;
+  max-width: calc(100vw - 24px); padding: 8px; margin: 0; border: 1px solid var(--ink);
+  background: var(--surface); color: var(--ink); font: 12px/1.4 ui-monospace, monospace;
+  white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: none;
+}
