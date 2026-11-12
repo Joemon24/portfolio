@@ -78,7 +78,7 @@ test("Worker protocol and model boundary", async t => {
     requests++;
     assert.equal(target, "https://api.groq.com/openai/v1/chat/completions");
     assert.equal(init.headers.Authorization, "Bearer test-placeholder");
-    assert.equal(init.redirect, "error");
+    assert.equal(init.redirect, "manual");
     const body = JSON.parse(init.body);
     assert.equal(body.temperature, 0);
     const { type, json_schema: schema } = body.response_format;
@@ -133,10 +133,12 @@ test("Worker protocol and model boundary", async t => {
     assert.equal(res.headers.get("X-Selector-Result"), "invalid-output");
     assert.deepEqual(await res.json(), refusal());
   }
-  for (const status of [429, 500]) {
-    result = () => new Response("private provider detail", { status });
+  for (const status of [307, 429, 500]) {
+    const before = requests;
+    result = () => new Response("private provider detail", { status, headers: { Location: "https://example.com" } });
     res = await worker.fetch(request(), env);
     assert.equal(res.status, status === 429 ? 429 : 502);
+    assert.equal(requests, before + 1);
     assert.deepEqual(await res.json(), refusal());
   }
 });

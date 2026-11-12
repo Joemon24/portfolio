@@ -108,7 +108,8 @@ async function select(question, env, signal) {
   const response = await fetch(GROQ, {
     method: "POST",
     headers: { Authorization: `Bearer ${env.GROQ_API_KEY}`, "Content-Type": "application/json" },
-    redirect: "error",
+    // Workers supports manual redirects. Reject all non-2xx responses below.
+    redirect: "manual",
     signal,
     body: JSON.stringify({
       model: MODEL,
