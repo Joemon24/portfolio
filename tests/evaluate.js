@@ -24,12 +24,17 @@ function score(expected, received) {
   return true;
 }
 
+// The full fact prompt can reach Groq’s free token limit before its request limit.
+const interval = Number(process.env.RYU_EVAL_INTERVAL_MS ?? 20000);
+if (!Number.isInteger(interval) || interval < 0 || (mode === "--worker" && interval < 5200)) {
+  console.error("RYU_EVAL_INTERVAL_MS must be a nonnegative integer, at least 5200 for --worker.");
+  process.exit(2);
+}
 let passed = 0;
 let errors = 0;
 const timings = [];
 for (const [index, item] of questions.entries()) {
-  // Space calls out so the 12/minute Worker binding does not gate a clean run.
-  if (index && mode === "--worker") await delay(5200);
+  if (index) await delay(interval);
   const headers = { "Content-Type": "application/json", Origin: "https://joemon24.github.io" };
   const body = JSON.stringify({ question: item.question });
   const start = performance.now();

@@ -18,5 +18,9 @@
   {"id":"fraiseql_fix","text":"Diagnosed a Rust benchmark compilation failure and arrived at the same fix as the maintainers.","source_url":"https://github.com/fraiseql/fraiseql-python/pull/491"},
   {"id":"fraiseql_status","text":"The PR closed unmerged after they shipped an equivalent fix.","source_url":"https://github.com/fraiseql/fraiseql-python/pull/491"},
   {"id":"churn","text":"Built a churn prediction pipeline and compared logistic regression, random forest, and XGBoost.","source_url":"https://joemon24.github.io/portfolio/#churn"},
-  {"id":"evals","text":"I’m working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.","source_url":"https://joemon24.github.io/portfolio/#about"}
+  {"id":"evals","text":"I’m working on evaluations that check whether AI agents complete tasks, respect constraints, and recover from tool errors.","source_url":"https://joemon24.github.io/portfolio/#about"},
+  {"id":"github_handle","text":"GitHub: Joemon24","source_url":"https://github.com/Joemon24"},
+  {"id":"linkedin_school","text":"Sri Siddhartha Institute of Technology","source_url":"https://www.linkedin.com/in/joemon24/"},
+  {"id":"resume_languages","text":"Languages: Python, SQL, Go; working exposure to JavaScript and Rust","source_url":"https://joemon24.github.io/portfolio/assets/Joemon-Joy-Resume.pdf"},
+  {"id":"resume_degree","text":"B.E. in Computer Science and Engineering","source_url":"https://joemon24.github.io/portfolio/assets/Joemon-Joy-Resume.pdf"}
 ]

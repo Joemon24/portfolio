@@ -42,7 +42,7 @@
       <header class="identity">
         <div class="name-row">
           <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
-          <button class="pixel-pet" type="button" aria-label="Open robot command agent" aria-haspopup="dialog" aria-controls="robot-console" aria-expanded="false" aria-keyshortcuts="/" hidden>
+          <button class="pixel-pet" type="button" aria-label="Open Ryu, Joemon’s portfolio assistant" aria-haspopup="dialog" aria-controls="robot-console" aria-expanded="false" aria-keyshortcuts="/" hidden>
             <canvas width="24" height="24" aria-hidden="true"></canvas>
           </button>
         </div>
@@ -178,7 +178,7 @@
       <div class="contact-assistant" id="recruiter-commands" hidden>
         <div class="contact-pet">
           <canvas width="24" height="24" aria-hidden="true"></canvas>
-          <h2>Ask the robot</h2>
+          <div><h2>Ask Ryu</h2><p class="caption">Joemon’s portfolio assistant</p></div>
         </div>
         <div class="console-chips" role="group" aria-label="Recruiter questions">
           <button type="button" data-command="show me your best work">What’s your best work?</button>
@@ -219,20 +219,20 @@
   </dialog>
   <dialog id="robot-console" aria-labelledby="robot-console-title">
     <header class="console-bar">
-      <h2 id="robot-console-title" class="visually-hidden">Robot console</h2>
+      <h2 id="robot-console-title" class="visually-hidden">Ryu console</h2>
       <button id="console-fold" type="button" aria-controls="console-body" aria-expanded="true">
         <span class="fold-icon" aria-hidden="true">−</span>
-        <span class="fold-label">Robot console</span>
+        <span class="fold-label">Ryu console</span>
       </button>
-      <form method="dialog"><button type="submit" aria-label="Close robot console"><span class="close-mark" aria-hidden="true">×</span></button></form>
+      <form method="dialog"><button type="submit" aria-label="Close Ryu console"><span class="close-mark" aria-hidden="true">×</span></button></form>
     </header>
-    <p class="visually-hidden" data-feedback role="status">Ready to talk. What should I open?</p>
+    <p class="visually-hidden" data-feedback role="status">I’m Ryu, Joemon’s portfolio assistant. Ask me about his work.</p>
     <div class="console-body" id="console-body">
       <div class="console-speech">
         <canvas width="24" height="24" aria-hidden="true"></canvas>
         <div>
           <p class="console-state" aria-hidden="true">Listening</p>
-          <p class="console-bubble" aria-hidden="true">Ready to talk. What should I open?</p>
+          <p class="console-bubble" aria-hidden="true">I’m Ryu, Joemon’s portfolio assistant. Ask me about his work.</p>
         </div>
       </div>
       <form id="robot-command">

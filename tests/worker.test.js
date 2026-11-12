@@ -18,11 +18,18 @@ const request = (body = { question: "hello" }, headers = {}, method = "POST") =>
   ...(method === "POST" ? { body: JSON.stringify(body) } : {}),
 });
 
-test("facts quote the source page verbatim and every remote action exists locally", async () => {
+test("facts quote the source page or have a reviewed external source, and every action exists locally", async () => {
   const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
   const text = html.replace(/<br\s*\/?\s*>/gi, " ").replace(/<[^>]*>/g, "").replace(/\s+/g, " ");
+  const externalSources = new Map([
+    ["github_handle", "https://github.com/Joemon24"],
+    ["linkedin_school", "https://www.linkedin.com/in/joemon24/"],
+    ["resume_languages", "https://joemon24.github.io/portfolio/assets/Joemon-Joy-Resume.pdf"],
+    ["resume_degree", "https://joemon24.github.io/portfolio/assets/Joemon-Joy-Resume.pdf"],
+  ]);
   for (const fact of FACTS.values()) {
-    assert.ok(text.includes(fact.text), fact.id);
+    if (externalSources.has(fact.id)) assert.equal(fact.source_url, externalSources.get(fact.id));
+    else assert.ok(text.includes(fact.text), fact.id);
     assert.equal(new URL(fact.source_url).protocol, "https:");
   }
   const source = await readFile(new URL("../agent.js", import.meta.url), "utf8");

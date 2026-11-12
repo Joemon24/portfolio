@@ -240,7 +240,7 @@ function setCollapsed(collapsed, focus = false) {
   consolePanel.classList.toggle("is-collapsed", collapsed);
   fold.setAttribute("aria-expanded", String(!collapsed));
   fold.querySelector(".fold-icon").textContent = collapsed ? "+" : "−";
-  setFoldLabel(collapsed ? consolePanel.querySelector("[data-feedback]").textContent : "Robot console");
+  setFoldLabel(collapsed ? consolePanel.querySelector("[data-feedback]").textContent : "Ryu console");
   if (focus) fold.focus({ preventScroll: true });
 }
 
@@ -264,7 +264,7 @@ function openPanel(panel, trigger) {
   destination = null;
   panel.querySelector("[data-confirm]").hidden = true;
   if (panel === consolePanel) resetAnswer();
-  speak(panel, panel === consolePanel ? "Ready to talk. What should I open?" : "");
+  speak(panel, panel === consolePanel ? "I’m Ryu, Joemon’s portfolio assistant. Ask me about his work." : "");
   if (panel === consolePanel) {
     setCollapsed(false);
     panel.show();
@@ -359,7 +359,7 @@ function renderSelection(selection) {
   setCollapsed(false);
   if (!selection.facts) {
     appendTrace("selector: refuse");
-    speak(consolePanel, "That's not on my site");
+    speak(consolePanel, "I’ll need to ask Boss about that.");
     refusalCopy.hidden = false;
     refusalCopy.focus({ preventScroll: true });
     return;
