@@ -81,6 +81,13 @@ test("Worker protocol and model boundary", async t => {
     assert.equal(init.redirect, "error");
     const body = JSON.parse(init.body);
     assert.equal(body.temperature, 0);
+    const { type, json_schema: schema } = body.response_format;
+    assert.equal(type, "json_schema");
+    assert.equal(schema.strict, true);
+    assert.deepEqual(schema.schema.properties.fact_ids.items.enum, [...FACTS.keys()]);
+    const shapes = schema.schema.properties.action.anyOf;
+    assert.deepEqual(shapes.map(shape => shape.properties.name.enum[0]), ["", ...Object.keys(ACTION_ARGS)]);
+    assert.deepEqual(shapes.find(shape => shape.properties.name.enum[0] === "copy_email").properties.args, { type: "object", additionalProperties: false });
     assert.equal(body.tools, undefined);
     assert.equal(body.messages.length, 2);
     assert.equal(body.messages[1].role, "user");
