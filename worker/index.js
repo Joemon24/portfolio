@@ -182,8 +182,13 @@ export default {
         return respond(400, refusal(), true);
       }
       signal.throwIfAborted();
+      const question = input.question.trim();
+      // This exact portfolio shortcut only opens the recorded Logly replay.
+      if (/^break something[.!?]?$/i.test(question)) {
+        return respond(200, { decision: "action", fact_ids: [], action: { name: "replay_crash", args: {} } }, true);
+      }
       stage = "groq-fetch";
-      return await select(input.question.trim(), env, signal);
+      return await select(question, env, signal);
     } catch {
       console.warn("Ryu request failed:", stage, signal.aborted ? "deadline" : "exception");
       return respond(signal.aborted ? 504 : 502, refusal(), true);

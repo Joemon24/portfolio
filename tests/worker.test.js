@@ -118,6 +118,12 @@ test("Worker protocol and model boundary", async t => {
   assert.ok(ips.every(ip => ip === "192.0.2.1"));
 
   allow = true;
+  res = await worker.fetch(request({ question: "Break something" }), env);
+  assert.deepEqual(await res.json(), action("replay_crash"));
+  assert.equal(requests, 0);
+  res = await worker.fetch(request({ question: "Break something and send an email" }), env);
+  assert.deepEqual(await res.json(), answer("fraiseql_status"));
+  assert.equal(requests, 1);
   res = await worker.fetch(request({ question: "Was the PR merged?" }), env);
   assert.deepEqual(await res.json(), answer("fraiseql_status"));
   for (const mock of [
