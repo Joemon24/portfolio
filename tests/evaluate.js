@@ -2,11 +2,15 @@ import { isDeepStrictEqual } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
 import { isDecision } from "../agent-contract.js";
 import worker from "../worker/index.js";
-import questions from "./questions.json" with { type: "json" };
+import baseline from "./questions.json" with { type: "json" };
+import heldOut from "./held-out.json" with { type: "json" };
 
-const [mode, endpoint] = process.argv.slice(2);
+const flags = process.argv.slice(2);
+const questions = flags.includes("--held-out") ? heldOut : baseline;
+
+const [mode, endpoint] = flags.filter(flag => flag !== "--held-out");
 if (!["--groq", "--worker"].includes(mode) || (mode === "--worker" && !endpoint)) {
-  console.error("Usage: npm run eval -- --groq  OR  npm run eval -- --worker https://YOUR_WORKER/agent");
+  console.error("Usage: npm run eval -- --groq  OR  npm run eval -- --worker https://YOUR_WORKER/agent [--held-out]");
   process.exit(2);
 }
 if (mode === "--groq" && !process.env.GROQ_API_KEY) {
@@ -45,6 +49,7 @@ for (const [index, item] of questions.entries()) {
         method: "POST", headers: { ...headers, "CF-Connecting-IP": "192.0.2.1" }, body,
       }), {
         GROQ_API_KEY: process.env.GROQ_API_KEY,
+        DAILY_BUDGET: { getByName: () => ({ fetch: async () => new Response(null, { status: 204 }) }) },
         AGENT_RATE_LIMIT: { async limit() { return { success: true }; } },
       });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

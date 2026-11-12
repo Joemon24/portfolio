@@ -1,6 +1,6 @@
 # Joemon Joy | AI Engineer
 
-A monochrome portfolio with a downloadable resume, desktop section links, a React Bits Card Nav menu on mobile, and an interactive replay of Logly's forced-crash CI test.
+A monochrome portfolio with a downloadable resume, desktop section links, a full-screen menu on mobile, and an interactive replay of Logly's forced-crash CI test.
 
 ## Preview
 
@@ -16,9 +16,9 @@ Geist is bundled under the SIL Open Font License. The name uses custom pixel let
 
 ## Optional AI selector
 
-Ryu is Joemon’s portfolio assistant. Its keyword matcher works without credentials. If configured, visitors can opt in via **Use AI selector** in the console. Only typed questions in this mode go to Groq, with the reviewed public facts. The fact list includes selected details from the portfolio, GitHub profile, public LinkedIn profile, and bundled resume. Ryu only sends the curated fact list, with no live profile lookups or resume upload. Buttons, command chips and keyboard shortcuts still use the local action registry. The model returns fact IDs or an allowlisted action with validated arguments. The site renders facts from its own copy of [facts.json](facts.json) and links to their sources.
+Ryu is Joemon’s portfolio assistant. Its keyword matcher works without credentials. If configured, AI answers are on by default and visitors can turn them off in **Settings**. Only typed questions in this mode go to Groq, with the reviewed public facts. The fact list includes selected details from the portfolio, GitHub profile, public LinkedIn profile, and bundled resume. Ryu only sends the curated fact list, with no live profile lookups or resume upload. Buttons, command chips and keyboard shortcuts still use the local action registry. The model returns fact IDs or an allowlisted action with validated arguments. The site renders facts from its own copy of [facts.json](facts.json) and links to their sources.
 
-The Worker allows browser requests only from `https://joemon24.github.io`. It caps questions at 300 characters, uses a five-second deadline and applies a limit of 12 requests per minute per IP per Cloudflare location. CORS is a browser restriction, so the rate limit also applies to direct requests. Provider outages and rate limits fall back to local commands. A refusal or invalid output displays “I’ll need to ask Boss about that” and offers the confirmed Copy email action. Copying an email address requires a separate click even if the model selects that action.
+The Worker allows browser requests only from `https://joemon24.github.io`. It caps questions at 300 characters, uses a five-second deadline and applies a limit of 12 requests per minute per IP per Cloudflare location plus a shared UTC daily cap of 150 Groq requests. CORS is a browser restriction, so the rate limit also applies to direct requests. Provider outages and rate limits fall back to local commands. A refusal or invalid output displays “I’ll need to ask Boss about that” and offers the confirmed Copy email action. Copying an email address requires a separate click even if the model selects that action.
 
 To enable the selector, authenticate Wrangler for the target Cloudflare account, then run these commands from the repo root:
 
@@ -40,6 +40,7 @@ npm run eval -- --groq
 
 # End-to-end against the deployed Worker. Requests are paced below its per-IP limit.
 npm run eval -- --worker https://YOUR_WORKER.workers.dev/agent
+npm run eval -- --worker https://YOUR_WORKER.workers.dev/agent --held-out
 ```
 
 The live evaluator reports semantic pass rate, request errors and p50/p95 latency. It pauses 20 seconds between requests to leave room under free-tier token limits. The full run takes about 17 minutes. The localhost preview intentionally cannot call the deployed Worker directly because of the production-only origin policy.

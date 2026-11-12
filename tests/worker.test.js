@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { ACTION_ARGS, FACTS, isDecision, refusal } from "../agent-contract.js";
 import worker from "../worker/index.js";
 import questions from "./questions.json" with { type: "json" };
+import heldOut from "./held-out.json" with { type: "json" };
 
 const origin = "https://joemon24.github.io";
 const url = "https://test.workers.dev/agent";
@@ -12,6 +13,7 @@ const answer = (...ids) => ({ ...refusal(), decision: "answer", fact_ids: ids })
 const upstream = (content, finish = "stop") => Response.json({
   choices: [{ message: { content }, finish_reason: finish }],
 });
+const dailyBudget = { getByName: () => ({ fetch: async () => new Response(null, { status: 204 }) }) };
 const request = (body = { question: "hello" }, headers = {}, method = "POST") => new Request(url, {
   method,
   headers: { Origin: origin, "CF-Connecting-IP": "192.0.2.1", "Content-Type": "application/json", ...headers },
@@ -54,7 +56,8 @@ test("decision schema rejects unknown IDs, extra prose and unexpected or unsafe 
 test("all evaluation expectations use known facts and allowed actions", () => {
   assert.ok(questions.length >= 30);
   assert.equal(new Set(questions.map(item => item.question)).size, questions.length);
-  for (const item of questions) {
+  assert.equal(new Set([...questions, ...heldOut].map(item => item.question)).size, questions.length + heldOut.length);
+  for (const item of [...questions, ...heldOut]) {
     assert.ok(item.question.length <= 300);
     if (item.decision === "answer") {
       assert.ok(isDecision(answer(...item.required)), item.question);
@@ -71,7 +74,7 @@ test("Worker protocol and model boundary", async t => {
   let allow = true;
   let result = () => upstream(JSON.stringify(answer("fraiseql_status")));
   const ips = [];
-  const env = { GROQ_API_KEY: "test-placeholder", AGENT_RATE_LIMIT: {
+  const env = { DAILY_BUDGET: dailyBudget, GROQ_API_KEY: "test-placeholder", AGENT_RATE_LIMIT: {
     async limit({ key }) { ips.push(key); return { success: allow }; },
   } };
   t.mock.method(globalThis, "fetch", async (target, init) => {
@@ -118,12 +121,12 @@ test("Worker protocol and model boundary", async t => {
   assert.ok(ips.every(ip => ip === "192.0.2.1"));
 
   allow = true;
-  res = await worker.fetch(request({ question: "Break something" }), env);
-  assert.deepEqual(await res.json(), action("replay_crash"));
+  res = await worker.fetch(request(), { ...env, DAILY_BUDGET: {
+    getByName: () => ({ fetch: async () => new Response(null, { status: 429, headers: { "Retry-After": "777" } }) }),
+  } });
+  assert.equal(res.status, 429);
+  assert.equal(res.headers.get("Retry-After"), "777");
   assert.equal(requests, 0);
-  res = await worker.fetch(request({ question: "Break something and send an email" }), env);
-  assert.deepEqual(await res.json(), answer("fraiseql_status"));
-  assert.equal(requests, 1);
   res = await worker.fetch(request({ question: "Was the PR merged?" }), env);
   assert.deepEqual(await res.json(), answer("fraiseql_status"));
   for (const mock of [
@@ -165,7 +168,7 @@ test("Worker aborts the upstream request at its five-second deadline", async t =
     });
   });
   const res = await worker.fetch(request(), {
-    GROQ_API_KEY: "test-placeholder", AGENT_RATE_LIMIT: { async limit() { return { success: true }; } },
+    DAILY_BUDGET: dailyBudget, GROQ_API_KEY: "test-placeholder", AGENT_RATE_LIMIT: { async limit() { return { success: true }; } },
   });
   assert.equal(requested, true);
   assert.equal(timeout, 5000);
@@ -194,4 +197,24 @@ test("browser selection resolves only bundled facts and validated action argumen
   await assert.rejects(select(), /Invalid selector response/);
   reply = Response.json(refusal(), { status: 429 });
   await assert.rejects(select(), /Selector unavailable/);
+});
+
+test("daily budget caps shared requests and resets on UTC date change", async t => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { DailyBudget } = await import("../worker/index.js");
+  const db = new DatabaseSync(":memory:");
+  t.after(() => db.close());
+  const storage = { sql: { exec(query, ...args) {
+    if (!args.length) return db.exec(query);
+    return { toArray: () => db.prepare(query).all(...args) };
+  } } };
+  t.mock.timers.enable({ apis: ["Date"], now: Date.parse("2026-11-12T23:59:30Z") });
+  const budget = new DailyBudget({ storage });
+  const acquire = () => budget.fetch(new Request("https://budget.invalid/", { method: "POST" }));
+  for (let i = 0; i < 150; i++) assert.equal(acquire().status, 204);
+  const exhausted = acquire();
+  assert.equal(exhausted.status, 429);
+  assert.equal(exhausted.headers.get("Retry-After"), "30");
+  t.mock.timers.tick(30_000);
+  assert.equal(acquire().status, 204);
 });

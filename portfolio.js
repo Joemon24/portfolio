@@ -93,7 +93,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function showReplayResult() {
   for (const event of replayEvents) event.classList.add("arrived");
-  replayStatus.textContent = "Recovered: 5 unique events, 1 incident, offset 5 committed.";
+  replayStatus.textContent = "Recovery produced one incident from five unique events.";
   replayButton.disabled = false;
 }
 
@@ -185,13 +185,15 @@ function drawPet(context, { blinking = false, gaze = 0, state = "idle" } = {}) {
   pixels(16, 17, 2, 3);
 }
 
-const consolePet = document.querySelector(".console-speech canvas").getContext("2d");
+
 export function paintAgent(state = pet.dataset.state || "idle") {
   pet.dataset.state = state;
   if (petContext) drawPet(petContext, { blinking: blinking && state === "idle", gaze, state });
-  if (consolePet && state !== "idle") drawPet(consolePet, { state });
+
 }
 if (contactPet) drawPet(contactPet);
+const navPet = document.querySelector("#nav-ryu canvas").getContext("2d");
+if (navPet) drawPet(navPet);
 if (petContext) {
   const paint = () => paintAgent();
   paint();
