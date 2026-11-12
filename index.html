@@ -15,9 +15,7 @@
   <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
   <link rel="preload" href="./assets/type/joemon-arcade.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="./styles.css">
-  <script type="module" src="./portfolio.js"></script>
-  <script type="module" src="./portfolio-extras.js"></script>
-  <script type="module" src="./contact.js"></script>
+  <script type="module" src="./agent.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -38,7 +36,7 @@
       <header class="identity">
         <div class="name-row">
           <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
-          <button class="pixel-pet" type="button" aria-label="Open the robot contact assistant" hidden>
+          <button class="pixel-pet" type="button" aria-label="Open robot command agent" aria-haspopup="dialog" aria-controls="robot-console" aria-expanded="false" aria-keyshortcuts="/" hidden>
             <canvas width="24" height="24" aria-hidden="true"></canvas>
           </button>
         </div>
@@ -142,7 +140,7 @@
             <dl class="case-facts">
               <div><dt>Problem</dt><dd>Classify short text into six emotion labels and serve predictions through an API.</dd></div>
               <div><dt>What I did</dt><dd>Trained a Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service.</dd></div>
-              <div><dt>Result</dt><dd>Evaluated on 2,000 held-out samples with accuracy and macro-F1.</dd></div>
+              <div><dt>Result</dt><dd><strong>85.75% accuracy</strong> and 81.96% macro-F1 on 2,000 held-out samples.</dd></div>
               <div><dt>Stack</dt><dd>PyTorch, FastAPI, Docker</dd></div>
             </dl>
             <div class="links" aria-label="Emotion API links"><a href="https://github.com/Joemon24/emotion-classification">Source <span class="arrow" aria-hidden="true">↗</span></a><a href="https://emotion-classification-z9uu.onrender.com/docs">API docs <span class="arrow" aria-hidden="true">↗</span></a></div>
@@ -213,13 +211,49 @@
   <dialog id="command-palette" aria-labelledby="palette-title">
     <form method="dialog"><h2 id="palette-title">Quick actions</h2><button aria-label="Close quick actions">Close <span class="close-mark" aria-hidden="true">×</span></button></form>
     <ul>
-      <li><a href="#projects">Go to Projects</a></li>
-      <li><a href="#about">Go to About</a></li>
-      <li><a href="#contact">Go to Contact</a></li>
-      <li><a href="./assets/Joemon-Joy-Resume.pdf">Open resume PDF</a></li>
-      <li><button type="button" id="copy-email">Copy email address</button></li>
+      <li><button type="button" data-action="go_section" data-arg="projects">Go to Projects</button></li>
+      <li><button type="button" data-action="go_section" data-arg="about">Go to About</button></li>
+      <li><button type="button" data-action="go_section" data-arg="contact">Go to Contact</button></li>
+      <li><button type="button" data-action="open_resume">Open resume PDF</button></li>
+      <li><button type="button" data-action="copy_email">Copy email address</button></li>
     </ul>
-    <p id="copy-status" class="caption" role="status"></p>
+    <p class="caption" data-feedback role="status"></p>
+    <button type="button" data-confirm hidden>Confirm copy</button>
+  </dialog>
+  <dialog id="robot-console" aria-labelledby="robot-console-title">
+    <header class="console-bar">
+      <h2 id="robot-console-title">Robot console</h2>
+      <form method="dialog"><button type="submit" aria-label="Close robot console"><span class="close-mark" aria-hidden="true">×</span></button></form>
+    </header>
+    <div class="console-body">
+      <div class="console-speech">
+        <canvas width="24" height="24" aria-hidden="true"></canvas>
+        <div>
+          <p class="console-state" aria-hidden="true">Listening</p>
+          <p class="console-bubble" data-feedback role="status">Ready to talk. What should I open?</p>
+        </div>
+      </div>
+      <form id="robot-command">
+        <label for="robot-input">Command</label>
+        <div class="console-entry">
+          <input id="robot-input" name="command" maxlength="160" autocomplete="off" spellcheck="false" placeholder="e.g. show me your best work" required>
+          <button type="submit">Run</button>
+        </div>
+      </form>
+      <div class="console-chips" aria-label="Suggested commands" role="group">
+        <button type="button" data-command="show me your best work">Best work</button>
+        <button type="button" data-command="break something">Replay crash</button>
+        <button type="button" data-command="run retrieval for tenant access">Run retrieval</button>
+        <button type="button" data-command="resume">Resume</button>
+        <button type="button" data-command="hire him">Hiring</button>
+        <button type="button" data-command="help">Help</button>
+      </div>
+      <button type="button" data-confirm hidden>Confirm copy</button>
+      <section class="console-trace" aria-labelledby="trace-title">
+        <h3 id="trace-title">Agent trace</h3>
+        <ol id="agent-trace" tabindex="0" aria-label="Command trace history"></ol>
+      </section>
+    </div>
   </dialog>
 </body>
 </html>

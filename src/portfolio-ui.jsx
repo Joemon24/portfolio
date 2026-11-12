@@ -23,7 +23,7 @@ const palette = {
   '--cn-shadow': 'none',
   '--cn-text': 'var(--ink)',
   '--cn-muted': 'var(--muted)',
-  '--cn-hover': '#eeeeee',
+  '--cn-hover': 'var(--hover)',
   '--cn-ring': 'var(--ink)',
   '--cn-tile': 'var(--surface)',
   '--cn-tile-rim': 'inset 0 0 0 1px var(--rule)',

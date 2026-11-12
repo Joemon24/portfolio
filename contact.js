@@ -1,5 +1,4 @@
 const composer = document.querySelector("#contact-composer");
-const robot = document.querySelector(".pixel-pet");
 const status = document.querySelector("#assistant-status");
 const attach = document.querySelector("#attach-project");
 const subject = composer.elements.subject;
@@ -44,19 +43,18 @@ function guideDraft() {
 }
 
 composer.hidden = false;
-robot.hidden = false;
 subject.value = defaultSubject;
 if (endpoint) {
   send.textContent = "Send message";
   document.querySelector("#composer-help").textContent = "Your email is used so Joemon can reply.";
 }
 
-robot.addEventListener("click", () => {
-  if (sending) return;
+export function prepareHiringDraft() {
+  if (sending) throw new Error("Wait for the current message to finish sending.");
+  composer.elements.topic.value = "hiring";
   guideDraft();
-  document.querySelector("#contact").scrollIntoView({ block: "start" });
-  composer.querySelector('input[name="topic"]:checked').focus({ preventScroll: true });
-});
+  return composer.elements.email;
+}
 composer.addEventListener("change", event => {
   if (event.target.name === "topic") guideDraft();
 });

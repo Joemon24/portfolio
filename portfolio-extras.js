@@ -73,50 +73,15 @@ controls.addEventListener("input", renderRetrieval);
 controls.addEventListener("submit", event => event.preventDefault());
 renderRetrieval();
 
-const palette = document.querySelector("#command-palette");
-const toggle = document.querySelector("#palette-toggle");
-const copyStatus = document.querySelector("#copy-status");
-let opener;
-let destination;
-
-function openPalette() {
-  if (palette.open) return;
-  opener = document.activeElement;
-  destination = null;
-  copyStatus.textContent = "";
-  palette.showModal();
-  palette.querySelector("ul a").focus();
-}
-
-toggle.hidden = false;
-toggle.addEventListener("click", openPalette);
-document.addEventListener("keydown", event => {
-  if (event.key.toLowerCase() !== "k" || !(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) return;
-  event.preventDefault();
-  openPalette();
-});
-palette.addEventListener("click", event => {
-  const link = event.target.closest('a[href^="#"]');
-  if (!link) return;
-  destination = document.getElementById(link.hash.slice(1)).querySelector("h2");
-  palette.close();
-});
-palette.addEventListener("close", () => {
-  if (destination) {
-    destination.tabIndex = -1;
-    destination.focus({ preventScroll: true });
-  } else opener?.focus();
-});
-document.querySelector("#copy-email").addEventListener("click", async () => {
-  const emailLink = document.querySelector('#contact a[href^="mailto:"]');
-  const email = emailLink.getAttribute("href").slice("mailto:".length);
-  try {
-    await navigator.clipboard.writeText(email);
-    copyStatus.textContent = "Email address copied.";
-  } catch {
-    copyStatus.textContent = `Copy this address: ${email}`;
+export function runRetrievalSample(sample) {
+  if (sample) {
+    if (!Object.hasOwn(samples, sample)) throw new Error("Unknown retrieval sample");
+    controls.elements.query.value = sample;
   }
-});
+  document.querySelector("#retrieval-demo").open = true;
+  renderRetrieval();
+  return controls.elements.query.selectedOptions[0].textContent;
+}
 
 const motion = matchMedia("(prefers-reduced-motion: reduce)");
 const statement = document.querySelector(".about-statement");

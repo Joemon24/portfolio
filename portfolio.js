@@ -36,6 +36,12 @@ function selectProject(index, updateUrl = false) {
   document.dispatchEvent(new Event("portfolio:project-change"));
 }
 
+export function openProject(id) {
+  const index = links.findIndex(link => link.hash === `#${id}`);
+  if (index < 0) throw new Error("Unknown project");
+  selectProject(index, true);
+}
+
 function syncHash() {
   const index = links.findIndex(link => link.hash === location.hash);
   if (index >= 0 || !location.hash || activeIndex < 0) selectProject(Math.max(index, 0));
@@ -91,7 +97,7 @@ function showReplayResult() {
   replayButton.disabled = false;
 }
 
-async function replayCrash() {
+async function playReplay(report) {
   if (reducedMotion.matches) {
     showReplayResult();
     return;
@@ -99,6 +105,7 @@ async function replayCrash() {
   replayButton.disabled = true;
   for (const event of replayEvents) event.classList.remove("arrived");
   replayStatus.textContent = "Waiting for events.";
+  report?.("receive(5 events)", replayStatus.textContent);
   for (const event of replayEvents) {
     await delay(500);
     if (reducedMotion.matches) {
@@ -109,12 +116,19 @@ async function replayCrash() {
   }
 
   replayStatus.textContent = "Consumer stopped after event 5 was stored. Committed offset: 4.";
+  report?.("crash(offset 4)", replayStatus.textContent);
   await delay(850);
   showReplayResult();
 }
 
 replayButton.hidden = false;
-replayButton.addEventListener("click", replayCrash);
+let activeReplay;
+export function replayCrash(report) {
+  if (activeReplay) return activeReplay;
+  activeReplay = playReplay(report).finally(() => { activeReplay = null; });
+  return activeReplay;
+}
+replayButton.addEventListener("click", () => replayCrash());
 
 const pet = document.querySelector(".pixel-pet");
 const contactPet = document.querySelector(".contact-pet canvas").getContext("2d");
@@ -123,7 +137,7 @@ const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 let blinking = false;
 let gaze = 0;
 
-function drawPet(context, { blinking = false, gaze = 0 } = {}) {
+function drawPet(context, { blinking = false, gaze = 0, state = "idle" } = {}) {
   const ink = "#050505";
   const paper = "#ffffff";
   const shade = "#d0d0d0";
@@ -151,6 +165,16 @@ function drawPet(context, { blinking = false, gaze = 0 } = {}) {
     pixels(9 + gaze, 11, 1, 1, paper);
   }
   pixels(13 + gaze, 11, 2, 1, paper);
+  if (state !== "idle") {
+    const accent = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+    pixels(11, 1, 2, 2, accent);
+    if (state === "working") pixels(13, 9, 2, 2, accent);
+    if (state === "done") {
+      pixels(13, 10, 1, 1, accent);
+      pixels(14, 11, 1, 1, accent);
+      pixels(15, 10, 1, 1, accent);
+    }
+  }
 
   pixels(8, 16, 8, 5);
   pixels(9, 17, 6, 3, shade);
@@ -161,9 +185,15 @@ function drawPet(context, { blinking = false, gaze = 0 } = {}) {
   pixels(16, 17, 2, 3);
 }
 
+const consolePet = document.querySelector(".console-speech canvas").getContext("2d");
+export function paintAgent(state = pet.dataset.state || "idle") {
+  pet.dataset.state = state;
+  if (petContext) drawPet(petContext, { blinking: blinking && state === "idle", gaze, state });
+  if (consolePet && state !== "idle") drawPet(consolePet, { state });
+}
 if (contactPet) drawPet(contactPet);
 if (petContext) {
-  const paint = () => drawPet(petContext, { blinking, gaze });
+  const paint = () => paintAgent();
   paint();
   const hero = pet.closest(".identity");
   hero.addEventListener("pointermove", event => {
@@ -182,7 +212,7 @@ if (petContext) {
   });
 
   const blink = setInterval(() => {
-    if (reducedMotion.matches || document.hidden || pet.getBoundingClientRect().bottom < 0) return;
+    if (pet.dataset.state !== "idle" || reducedMotion.matches || document.hidden || pet.getBoundingClientRect().bottom < 0) return;
     blinking = true;
     paint();
     setTimeout(() => {
