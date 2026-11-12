@@ -13,3 +13,11 @@ namespace_id = "24112"
   [ratelimits.simple]
   limit = 12
   period = 60
+
+[[durable_objects.bindings]]
+name = "DAILY_BUDGET"
+class_name = "DailyBudget"
+
+[[migrations]]
+tag = "daily-budget-v1"
+new_sqlite_classes = ["DailyBudget"]

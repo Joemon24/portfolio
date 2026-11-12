@@ -1,3 +1,5 @@
+import "./ryu-companion.js";
+import "./mobile-ui.js";
 import { openProject, paintAgent, replayCrash } from "./portfolio.js";
 import { runRetrievalSample } from "./portfolio-extras.js";
 import { matchIntent, retrievalSample } from "./agent-intents.js";
@@ -13,12 +15,17 @@ const consoleBody = document.querySelector("#console-body");
 const fold = document.querySelector("#console-fold");
 const themeControls = document.querySelector("#theme-controls");
 const themeToggle = document.querySelector("#theme-toggle");
-const consoleTheme = document.querySelector("#console-theme");
-const accentToggle = document.querySelector("#console-accent");
-const accentOptions = document.querySelector("#accent-options");
 const contactActions = document.querySelector("#contact-actions");
 const contactCopy = document.querySelector("#contact-copy");
 const recruiter = document.querySelector("#recruiter-commands");
+const message = document.querySelector("#ryu-message");
+const suggestions = document.querySelector("#ryu-suggestions");
+const greeting = document.querySelector("#ryu-greeting");
+const desktopShortcuts = matchMedia("(min-width: 900px) and (pointer: fine)");
+const suggestionToggle = document.querySelector("#ryu-suggestions-toggle");
+const siteRegions = [...document.querySelectorAll("body > :is(.skip-link, header, main, footer)")];
+const debug = new URLSearchParams(location.search).get("debug") === "1";
+document.querySelector(".console-trace").hidden = !debug;
 const answer = document.querySelector("#agent-answer");
 const refusalCopy = document.querySelector("#refusal-copy");
 const resumeLink = document.querySelector("#agent-resume-link");
@@ -41,6 +48,7 @@ let queuedPaletteTrigger;
 let busy = false;
 
 function appendTrace(text) {
+  if (!debug) return;
   const line = document.createElement("li");
   line.textContent = text;
   trace.append(line);
@@ -51,15 +59,15 @@ function appendTrace(text) {
 function speak(panel, text) {
   panel.querySelector("[data-feedback]").textContent = text;
   if (panel === consolePanel) {
-    panel.querySelector(".console-bubble").textContent = text;
-    if (consoleBody.hidden) setFoldLabel(text);
+    message.textContent = text;
+    message.hidden = !text;
   }
 }
 
 function setState(state) {
   paintAgent(state);
   consolePanel.dataset.state = state;
-  consolePanel.querySelector(".console-state").textContent = state;
+  consolePanel.setAttribute("aria-busy", String(state === "working"));
 }
 
 function scrollToId(id) {
@@ -155,8 +163,8 @@ const actions = {
       root.dataset.theme = theme;
       const dark = theme === "dark";
       themeToggle.setAttribute("aria-pressed", String(dark));
-      consoleTheme.dataset.command = dark ? "light mode" : "dark mode";
-      consoleTheme.textContent = dark ? "Light mode" : "Dark mode";
+      themeToggle.setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+      themeToggle.title = themeToggle.getAttribute("aria-label");
     });
     return `${theme === "dark" ? "Dark" : "Light"} mode is on.`;
   },
@@ -164,9 +172,7 @@ const actions = {
     if (!accents.has(color)) throw new Error("Choose lime, red, blue, amber, or cyan. Try “set accent to lime”.");
     step(`accent(${color})`, `Applying the ${color} accent.`, () => {
       root.dataset.accent = color;
-      for (const button of accentOptions.querySelectorAll("button")) {
-        button.setAttribute("aria-pressed", String(button.dataset.command === `accent ${color}`));
-      }
+
     });
     return `Accent set to ${color}.`;
   },
@@ -204,7 +210,9 @@ async function execute(panel, intent, source) {
   }
   busy = true;
   setState("working");
-  if (panel === consolePanel) setCollapsed(true, true);
+  if (panel === consolePanel && ["show_best_work", "show_project", "replay_crash", "run_retrieval", "go_section", "contact_hiring"].includes(intent.id)) {
+    setCollapsed(true, true);
+  }
   const steps = [`intent: ${intent.id}`];
   appendTrace(steps[0]);
   function step(label, narration, action) {
@@ -235,12 +243,21 @@ function setFoldLabel(text) {
   fold.querySelector(".fold-label").textContent = text;
 }
 
+function lockSite(locked) {
+  for (const region of siteRegions) region.inert = locked;
+  if (locked) consolePanel.setAttribute("aria-modal", "true");
+  else consolePanel.removeAttribute("aria-modal");
+}
+
 function setCollapsed(collapsed, focus = false) {
+  if (consolePanel.open) lockSite(!collapsed);
   consoleBody.hidden = collapsed;
   consolePanel.classList.toggle("is-collapsed", collapsed);
   fold.setAttribute("aria-expanded", String(!collapsed));
   fold.querySelector(".fold-icon").textContent = collapsed ? "+" : "−";
-  setFoldLabel(collapsed ? consolePanel.querySelector("[data-feedback]").textContent : "Ryu console");
+  setFoldLabel("Back to Ryu");
+  fold.setAttribute("aria-label", collapsed ? "Back to Ryu" : "Minimize Ryu");
+  fold.querySelector(".fold-label").classList.toggle("visually-hidden", !collapsed);
   if (focus) fold.focus({ preventScroll: true });
 }
 
@@ -250,13 +267,10 @@ if ("ResizeObserver" in window) {
   });
   drawerSize.observe(consolePanel);
 }
-fold.addEventListener("click", () => setCollapsed(!consoleBody.hidden));
-accentToggle.addEventListener("click", () => {
-  accentOptions.hidden = !accentOptions.hidden;
-  accentToggle.setAttribute("aria-expanded", String(!accentOptions.hidden));
-  if (!accentOptions.hidden) accentOptions.querySelector("button").focus();
+fold.addEventListener("click", () => {
+  setCollapsed(!consoleBody.hidden);
+  if (!consoleBody.hidden) input.focus({ preventScroll: true });
 });
-
 function openPanel(panel, trigger) {
   if (dialog || busy) return false;
   dialog = panel;
@@ -264,10 +278,11 @@ function openPanel(panel, trigger) {
   destination = null;
   panel.querySelector("[data-confirm]").hidden = true;
   if (panel === consolePanel) resetAnswer();
-  speak(panel, panel === consolePanel ? "I’m Ryu, Joemon’s portfolio assistant. Ask me about his work." : "");
+  speak(panel, "");
   if (panel === consolePanel) {
     setCollapsed(false);
     panel.show();
+    lockSite(true);
     robot.setAttribute("aria-expanded", "true");
     input.focus({ preventScroll: true });
   } else {
@@ -280,10 +295,15 @@ function openPanel(panel, trigger) {
 
 for (const panel of [consolePanel, palette]) {
   panel.addEventListener("close", () => {
-    if (panel === consolePanel) pendingSelection?.abort();
+    if (panel === consolePanel) {
+      pendingSelection?.abort();
+      lockSite(false);
+    }
     const target = destination || opener;
     if (target && !target.matches("a, button, input, summary, [tabindex]")) target.tabIndex = -1;
-    target?.focus({ preventScroll: true });
+    if (target?.closest("#ryu-companion")) {
+      queueMicrotask(() => target.hidden ? robot.focus({ preventScroll: true }) : target.focus({ preventScroll: true }));
+    } else target?.focus({ preventScroll: true });
     if (destination) destination.scrollIntoView({ block: "nearest", behavior: "instant" });
     dialog = opener = destination = null;
     robot.setAttribute("aria-expanded", "false");
@@ -295,8 +315,8 @@ for (const panel of [consolePanel, palette]) {
     }
   });
   panel.addEventListener("keydown", event => {
-    if (panel === consolePanel || event.key !== "Tab") return;
-    const items = [...panel.querySelectorAll("button, input, a[href], [tabindex='0']")]
+    if (event.key !== "Tab" || (panel === consolePanel && consoleBody.hidden)) return;
+    const items = [...panel.querySelectorAll("button, input, summary, a[href], [tabindex='0']")]
       .filter(item => !item.disabled && !item.hidden && item.getClientRects().length);
     const first = items[0], last = items.at(-1);
     if (event.shiftKey && document.activeElement === first) {
@@ -325,22 +345,32 @@ themeToggle.addEventListener("click", () => execute(themeControls, { id: "toggle
 contactCopy.addEventListener("click", () => execute(contactActions, { id: "copy_email" }));
 contactActions.querySelector("[data-confirm]").addEventListener("click", () =>
   execute(contactActions, { id: "copy_email", arg: true }));
-recruiter.addEventListener("click", event => {
-  const button = event.target.closest("[data-command]");
-  if (!button || (dialog !== consolePanel && !openPanel(consolePanel, button))) return;
-  input.value = button.dataset.command;
-  execute(consolePanel, matchIntent(input.value, projects));
+for (const id of ["nav-ryu", "footer-ryu", "walker-ryu", "walker-chat"]) {
+  const button = document.getElementById(id);
+  if (id === "nav-ryu" || id === "footer-ryu") button.hidden = false;
+  button.addEventListener("click", () => {
+    if (dialog === consolePanel) {
+      setCollapsed(false);
+      input.focus();
+    } else openPanel(consolePanel, button);
+  });
+}
+suggestionToggle.addEventListener("click", () => {
+  suggestions.hidden = false;
+  suggestionToggle.hidden = true;
+  suggestions.querySelector("button").focus();
 });
 document.addEventListener("keydown", event => {
-  if (event.defaultPrevented || event.isComposing || event.repeat || event.altKey) return;
+  if (document.querySelector("#mobile-menu").open || event.defaultPrevented || event.isComposing || event.repeat || event.altKey) return;
   if (event.key === "Escape" && dialog === consolePanel) {
     event.preventDefault();
     consolePanel.close();
     return;
   }
-  const quick = event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.shiftKey;
   const editable = event.target.closest?.("input, textarea, select, [contenteditable]:not([contenteditable=false])");
-  const slash = event.key === "/" && !event.ctrlKey && !event.metaKey && !editable;
+  if (editable) return;
+  const quick = desktopShortcuts.matches && event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey) && !event.shiftKey;
+  const slash = event.key === "/" && !event.ctrlKey && !event.metaKey;
   if (quick && dialog !== palette && !busy) {
     event.preventDefault();
     openQuickActions();
@@ -351,7 +381,7 @@ document.addEventListener("keydown", event => {
 });
 
 function resetAnswer() {
-  answer.hidden = refusalCopy.hidden = resumeLink.hidden = true;
+  refusalCopy.hidden = resumeLink.hidden = true;
   answer.replaceChildren();
 }
 
@@ -374,25 +404,60 @@ function renderSelection(selection) {
     source.href = fact.source_url;
     source.target = "_blank";
     source.rel = "noopener";
-    source.textContent = "Source ↗";
-    item.append(text, source);
+    source.textContent = "↗";
+    source.setAttribute("aria-label", "Source for this answer");
+    text.append(" ", source);
+    item.append(text);
     list.append(item);
   }
   answer.append(list);
-  answer.hidden = false;
-  speak(consolePanel, `Selected ${selection.facts.length} portfolio ${selection.facts.length === 1 ? "fact" : "facts"} below.`);
-  answer.tabIndex = -1;
-  answer.focus();
+  speak(consolePanel, "");
+  const project = selection.facts.find(fact => projects.some(item => item.id === fact.project))?.project;
+  if (project) {
+    if (projects.some(item => item.id === project && !item.moreWork)) openProject(project);
+    scrollToId(project);
+  }
+  const scroller = answer.closest(".ryu-scroll");
+  scroller.scrollTop = Math.max(0, answer.offsetTop - scroller.offsetTop);
 }
 
 document.querySelector("#llm-option").hidden = !workerUrl;
+const privacy = document.querySelector("#ryu-privacy");
+const updatePrivacy = () => { privacy.hidden = !workerUrl || !llmMode.checked; };
+llmMode.addEventListener("change", updatePrivacy);
+updatePrivacy();
 refusalCopy.addEventListener("click", () => execute(consolePanel, { id: "copy_email" }));
+function hideStarters() {
+  greeting.hidden = suggestions.hidden = true;
+  suggestionToggle.hidden = false;
+}
+
+async function localQuestion(question, source) {
+  const normalize = text => text.toLowerCase().trim().replace(/[?!.]+$/, "");
+  const starter = [...suggestions.querySelectorAll("[data-fact]")]
+    .find(button => normalize(button.dataset.question) === normalize(question));
+  if (!starter) {
+    execute(consolePanel, matchIntent(question, projects), source);
+    return;
+  }
+  busy = true;
+  resetAnswer();
+  try {
+    const { FACTS } = await import("./agent-contract.js");
+    if (consolePanel.open) renderSelection({ facts: [FACTS.get(starter.dataset.fact)] });
+  } finally {
+    busy = false;
+  }
+}
+
 document.querySelector("#robot-command").addEventListener("submit", async event => {
   event.preventDefault();
   const question = input.value.trim();
   if (!question || busy) return;
+  hideStarters();
+  input.value = "";
   if (!workerUrl || !llmMode.checked) {
-    execute(consolePanel, matchIntent(question, projects));
+    await localQuestion(question);
     return;
   }
 
@@ -405,8 +470,7 @@ document.querySelector("#robot-command").addEventListener("submit", async event 
   const controller = new AbortController();
   pendingSelection = controller;
   setState("working");
-  setCollapsed(true, true);
-  speak(consolePanel, "Checking the portfolio facts…");
+  speak(consolePanel, "");
   let selection;
   let unavailable = false;
   try {
@@ -423,7 +487,7 @@ document.querySelector("#robot-command").addEventListener("submit", async event 
     return;
   }
   if (unavailable) {
-    execute(consolePanel, matchIntent(question, projects), "local fallback");
+    await localQuestion(question, "local fallback");
   } else if (selection.intent) {
     execute(consolePanel, selection.intent, "selector: action");
   } else {
@@ -431,11 +495,12 @@ document.querySelector("#robot-command").addEventListener("submit", async event 
     setState("done");
   }
 });
-consolePanel.addEventListener("click", event => {
-  const button = event.target.closest("[data-command]");
+suggestions.addEventListener("click", event => {
+  const button = event.target.closest("[data-question]");
   if (!button || busy) return;
-  input.value = button.dataset.command;
-  execute(consolePanel, matchIntent(input.value, projects));
+  input.focus({ preventScroll: true });
+  input.value = button.dataset.question;
+  document.querySelector("#robot-command").requestSubmit();
 });
 palette.addEventListener("click", event => {
   const button = event.target.closest("[data-action]");
