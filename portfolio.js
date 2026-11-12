@@ -2,7 +2,6 @@
 
 const menu = document.querySelector(".project-menu");
 const links = [...menu.querySelectorAll("a")];
-const moreWork = menu.querySelector("details");
 const panels = links.map(link => document.getElementById(link.hash.slice(1)));
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 let activeIndex = -1;
@@ -22,19 +21,19 @@ for (const panel of panels) {
 }
 
 function selectProject(index, updateUrl = false) {
+  if (updateUrl && location.hash !== links[index].hash) history.pushState(null, "", links[index].hash);
   if (index === activeIndex) return;
   activeIndex = index;
-  if (moreWork.contains(links[index])) moreWork.open = true;
 
   for (const [i, link] of links.entries()) {
     const selected = i === index;
     panels[i].hidden = !selected;
+    if (selected) panels[i].parentElement.scrollTop = 0;
     panels[i].classList.toggle("reveal-text", selected);
     if (selected) link.setAttribute("aria-current", "true");
     else link.removeAttribute("aria-current");
   }
 
-  if (updateUrl) history.pushState(null, "", links[index].hash);
 }
 
 function syncHash() {
@@ -52,24 +51,34 @@ menu.addEventListener("click", event => {
 menu.addEventListener("keydown", event => {
   const index = links.indexOf(document.activeElement);
   if (index < 0) return;
-  const visibleLinks = links.filter(link => moreWork.open || !moreWork.contains(link));
-  const position = visibleLinks.indexOf(links[index]);
+  const position = index;
   let next;
   switch (event.key) {
-    case "ArrowDown": next = (position + 1) % visibleLinks.length; break;
-    case "ArrowUp": next = (position - 1 + visibleLinks.length) % visibleLinks.length; break;
+    case "ArrowDown": next = (position + 1) % links.length; break;
+    case "ArrowUp": next = (position - 1 + links.length) % links.length; break;
     case "Home": next = 0; break;
-    case "End": next = visibleLinks.length - 1; break;
+    case "End": next = links.length - 1; break;
     default: return;
   }
   event.preventDefault();
-  visibleLinks[next].focus();
-  selectProject(links.indexOf(visibleLinks[next]), true);
+  links[next].focus();
+  selectProject(next, true);
 });
 
 window.addEventListener("popstate", syncHash);
 window.addEventListener("hashchange", syncHash);
 syncHash();
+document.documentElement.classList.add("enhanced");
+document.querySelector(".metrics").addEventListener("click", event => {
+  const link = event.target.closest("a");
+  if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const index = links.findIndex(project => project.hash === link.hash);
+  if (index < 0) return;
+  event.preventDefault();
+  selectProject(index, true);
+  document.querySelector("#projects").scrollIntoView();
+  links[index].focus({ preventScroll: true });
+});
 
 const replayButton = document.querySelector("#replay-button");
 const replayEvents = [...document.querySelectorAll("#replay-events li")];
@@ -108,21 +117,27 @@ replayButton.hidden = false;
 replayButton.addEventListener("click", replayCrash);
 
 const pet = document.querySelector(".pixel-pet");
+const contactPet = document.querySelector(".contact-pet canvas").getContext("2d");
 const petContext = pet.querySelector("canvas").getContext("2d");
 const petStatus = document.querySelector("#pet-status");
+const petToast = document.querySelector("#pet-toast");
+const name = document.querySelector(".identity h1");
+const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 let waveTimer;
+let blinking = false;
+let waving = false;
+let gaze = 0;
 
-function drawPet(waving = false) {
+function drawPet(context, { waving = false, blinking = false, gaze = 0 } = {}) {
   const ink = "#050505";
   const paper = "#ffffff";
   const shade = "#d0d0d0";
   function pixels(x, y, width, height, color = ink) {
-    petContext.fillStyle = color;
-    petContext.fillRect(x, y, width, height);
+    context.fillStyle = color;
+    context.fillRect(x, y, width, height);
   }
 
-  petContext.clearRect(0, 0, 24, 24);
-  // Antenna, head and side panels.
+  context.clearRect(0, 0, 24, 24);
   pixels(11, 1, 2, 2);
   pixels(12, 3, 1, 2);
   pixels(6, 5, 12, 1);
@@ -133,12 +148,15 @@ function drawPet(waving = false) {
   pixels(6, 6, 12, 9, shade);
   pixels(5, 7, 14, 6, paper);
   pixels(7, 8, 10, 6);
-  pixels(9, 9, 1, 1, paper);
-  pixels(10, 10, 1, 1, paper);
-  pixels(9, 11, 1, 1, paper);
-  pixels(13, 11, 2, 1, paper);
+  if (blinking) {
+    pixels(9 + gaze, 11, 2, 1, paper);
+  } else {
+    pixels(9 + gaze, 9, 1, 1, paper);
+    pixels(10 + gaze, 10, 1, 1, paper);
+    pixels(9 + gaze, 11, 1, 1, paper);
+  }
+  pixels(13 + gaze, 11, 2, 1, paper);
 
-  // Body, feet and the waving arm.
   pixels(8, 16, 8, 5);
   pixels(9, 17, 6, 3, shade);
   pixels(11, 18, 2, 1, paper);
@@ -154,18 +172,72 @@ function drawPet(waving = false) {
   }
 }
 
+if (contactPet) drawPet(contactPet);
 if (petContext) {
-  drawPet();
+  const paint = () => drawPet(petContext, { waving, blinking, gaze });
+  const showRecovery = () => {
+    waving = false;
+    name.classList.remove("recovering");
+    pet.classList.remove("waving");
+    petToast.textContent = "Consumer crashed → replaying → recovered.";
+    petStatus.textContent = "Simulation complete. Consumer recovered.";
+    paint();
+  };
+  paint();
   pet.hidden = false;
   pet.addEventListener("click", () => {
     clearTimeout(waveTimer);
-    drawPet(true);
+    if (reducedMotion.matches) {
+      showRecovery();
+      return;
+    }
+    waving = true;
+    paint();
+    name.classList.remove("recovering");
+    requestAnimationFrame(() => {
+      if (waving) name.classList.add("recovering");
+    });
     pet.classList.add("waving");
-    petStatus.textContent = "The pixel robot waved.";
-    waveTimer = setTimeout(() => {
-      drawPet();
-      pet.classList.remove("waving");
-      petStatus.textContent = "";
-    }, 700);
+    petStatus.textContent = "";
+    petToast.textContent = "Consumer crashed… replaying…";
+    waveTimer = setTimeout(showRecovery, 620);
+  });
+
+  const hero = pet.closest(".identity");
+  hero.addEventListener("pointermove", event => {
+    if (!finePointer.matches || reducedMotion.matches || event.pointerType !== "mouse") return;
+    const box = pet.getBoundingClientRect();
+    const delta = event.clientX - box.left - box.width / 2;
+    const nextGaze = Math.abs(delta) < 12 ? 0 : Math.sign(delta);
+    if (nextGaze !== gaze) {
+      gaze = nextGaze;
+      paint();
+    }
+  });
+  hero.addEventListener("pointerleave", () => {
+    gaze = 0;
+    paint();
+  });
+
+  const blink = setInterval(() => {
+    if (reducedMotion.matches || document.hidden || pet.getBoundingClientRect().bottom < 0) return;
+    blinking = true;
+    paint();
+    setTimeout(() => {
+      blinking = false;
+      paint();
+    }, 120);
+  }, 4600);
+  window.addEventListener("pagehide", event => {
+    if (!event.persisted) clearInterval(blink);
+  });
+  reducedMotion.addEventListener("change", () => {
+    if (!reducedMotion.matches) return;
+    gaze = 0;
+    blinking = false;
+    if (waving) {
+      clearTimeout(waveTimer);
+      showRecovery();
+    } else paint();
   });
 }
