@@ -23,6 +23,8 @@ export default defineConfig({
         ['assets/type/geist-OFL.txt', 'assets/geist-OFL.txt'],
         ['components/REACT-BITS-LICENSE.txt', 'assets/REACT-BITS-LICENSE.txt'],
         ['.nojekyll', '.nojekyll'],
+        ['404.html', '404.html'],
+        ['assets/icon.svg', 'assets/icon.svg'],
       ]) {
         await copyFile(source, 'dist/' + destination);
       }

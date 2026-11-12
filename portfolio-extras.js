@@ -141,3 +141,13 @@ if (!motion.matches && "IntersectionObserver" in window) {
   }, { threshold: 0.5 });
   observer.observe(statement);
 }
+
+const mobileNav = matchMedia("(max-width: 560px)");
+function loadMobileNav() {
+  if (!mobileNav.matches) return;
+  mobileNav.removeEventListener("change", loadMobileNav);
+  // The inline navigation remains available if the enhancement cannot load.
+  import("./src/portfolio-ui.jsx").catch(() => {});
+}
+mobileNav.addEventListener("change", loadMobileNav);
+loadMobileNav();
