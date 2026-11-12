@@ -33,7 +33,7 @@ function selectProject(index, updateUrl = false) {
     if (selected) link.setAttribute("aria-current", "true");
     else link.removeAttribute("aria-current");
   }
-
+  document.dispatchEvent(new Event("portfolio:project-change"));
 }
 
 function syncHash() {
@@ -119,16 +119,11 @@ replayButton.addEventListener("click", replayCrash);
 const pet = document.querySelector(".pixel-pet");
 const contactPet = document.querySelector(".contact-pet canvas").getContext("2d");
 const petContext = pet.querySelector("canvas").getContext("2d");
-const petStatus = document.querySelector("#pet-status");
-const petToast = document.querySelector("#pet-toast");
-const name = document.querySelector(".identity h1");
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
-let waveTimer;
 let blinking = false;
-let waving = false;
 let gaze = 0;
 
-function drawPet(context, { waving = false, blinking = false, gaze = 0 } = {}) {
+function drawPet(context, { blinking = false, gaze = 0 } = {}) {
   const ink = "#050505";
   const paper = "#ffffff";
   const shade = "#d0d0d0";
@@ -163,46 +158,13 @@ function drawPet(context, { waving = false, blinking = false, gaze = 0 } = {}) {
   pixels(7, 21, 4, 1);
   pixels(13, 21, 4, 1);
   pixels(6, 17, 2, 3);
-  if (waving) {
-    pixels(16, 17, 4, 1);
-    pixels(19, 14, 1, 3);
-    pixels(20, 13, 2, 2);
-  } else {
-    pixels(16, 17, 2, 3);
-  }
+  pixels(16, 17, 2, 3);
 }
 
 if (contactPet) drawPet(contactPet);
 if (petContext) {
-  const paint = () => drawPet(petContext, { waving, blinking, gaze });
-  const showRecovery = () => {
-    waving = false;
-    name.classList.remove("recovering");
-    pet.classList.remove("waving");
-    petToast.textContent = "Consumer crashed → replaying → recovered.";
-    petStatus.textContent = "Simulation complete. Consumer recovered.";
-    paint();
-  };
+  const paint = () => drawPet(petContext, { blinking, gaze });
   paint();
-  pet.hidden = false;
-  pet.addEventListener("click", () => {
-    clearTimeout(waveTimer);
-    if (reducedMotion.matches) {
-      showRecovery();
-      return;
-    }
-    waving = true;
-    paint();
-    name.classList.remove("recovering");
-    requestAnimationFrame(() => {
-      if (waving) name.classList.add("recovering");
-    });
-    pet.classList.add("waving");
-    petStatus.textContent = "";
-    petToast.textContent = "Consumer crashed… replaying…";
-    waveTimer = setTimeout(showRecovery, 620);
-  });
-
   const hero = pet.closest(".identity");
   hero.addEventListener("pointermove", event => {
     if (!finePointer.matches || reducedMotion.matches || event.pointerType !== "mouse") return;
@@ -235,9 +197,6 @@ if (petContext) {
     if (!reducedMotion.matches) return;
     gaze = 0;
     blinking = false;
-    if (waving) {
-      clearTimeout(waveTimer);
-      showRecovery();
-    } else paint();
+    paint();
   });
 }

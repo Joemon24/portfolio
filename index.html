@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./portfolio.js"></script>
   <script type="module" src="./portfolio-extras.js"></script>
+  <script type="module" src="./contact.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -37,25 +38,23 @@
       <header class="identity">
         <div class="name-row">
           <h1 aria-label="Joemon Joy"><span aria-hidden="true">JOEMON</span> <span aria-hidden="true">JOY</span></h1>
-          <button class="pixel-pet" type="button" aria-label="Simulate consumer recovery" hidden>
+          <button class="pixel-pet" type="button" aria-label="Open the robot contact assistant" hidden>
             <canvas width="24" height="24" aria-hidden="true"></canvas>
           </button>
-          <span class="visually-hidden" role="status" id="pet-status"></span>
         </div>
         <p>AI engineer in Bengaluru building LLM systems that keep working when things break. Open to Applied AI, agentic AI, and forward-deployed roles.</p>
+        <p class="current-role"><strong>Student Innovation Assistant (Intern) at CoCreate Ventures</strong> · Sep 2025 to present</p>
         <div class="hero-links">
           <a class="primary-link" href="./assets/Joemon-Joy-Resume.pdf" download>Resume <span aria-hidden="true">↓</span><span class="file-type">PDF</span></a>
           <a href="https://www.linkedin.com/in/joemon24/">LinkedIn <span class="arrow" aria-hidden="true">↗</span></a>
           <a href="mailto:joemonjoy241@gmail.com">Email <span class="arrow" aria-hidden="true">↗</span></a>
           <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
         </div>
-        <p id="pet-toast" class="pet-toast" aria-hidden="true"></p>
       </header>
 
       <ul class="metrics" aria-label="Selected project results">
         <li><a href="#arc"><strong>53</strong> merged PRs</a></li>
         <li><a href="#logly"><strong>5</strong> events → <strong>1</strong> incident</a></li>
-        <li><a href="#emotion"><strong>85.75%</strong> accuracy</a></li>
       </ul>
     </div>
 
@@ -78,7 +77,7 @@
           <article class="project-panel featured" id="arc" aria-labelledby="arc-title">
             <h3 id="arc-title">ARC</h3>
             <p class="project-lead">Retrieval now respects the caller’s context limit and a separate prompt budget. <a href="https://github.com/arc-ive/arc/pull/264">PR #264</a></p>
-            <p class="experience"><strong>CoCreate Ventures internship</strong> · Sep 2025 to present</p>
+            <p class="experience"><strong>Student Innovation Assistant (Intern) · CoCreate Ventures</strong></p>
             <dl class="case-facts">
               <div><dt>Problem</dt><dd>Relevant search results had to fit both the caller’s requested context limit and the prompt budget.</dd></div>
               <div><dt>What I did</dt><dd>Built hybrid retrieval with PostgreSQL full-text search, pgvector, and reciprocal rank fusion. Integrated OpenRouter, revalidated tenant access, and added regression tests.</dd></div>
@@ -143,7 +142,7 @@
             <dl class="case-facts">
               <div><dt>Problem</dt><dd>Classify short text into six emotion labels and serve predictions through an API.</dd></div>
               <div><dt>What I did</dt><dd>Trained a Bi-GRU text classifier and packaged inference as a Dockerized FastAPI service.</dd></div>
-              <div><dt>Result</dt><dd><strong>85.75% accuracy</strong> and <strong>81.96% macro-F1</strong> on 2,000 held-out samples.</dd></div>
+              <div><dt>Result</dt><dd>Evaluated on 2,000 held-out samples with accuracy and macro-F1.</dd></div>
               <div><dt>Stack</dt><dd>PyTorch, FastAPI, Docker</dd></div>
             </dl>
             <div class="links" aria-label="Emotion API links"><a href="https://github.com/Joemon24/emotion-classification">Source <span class="arrow" aria-hidden="true">↗</span></a><a href="https://emotion-classification-z9uu.onrender.com/docs">API docs <span class="arrow" aria-hidden="true">↗</span></a></div>
@@ -151,23 +150,16 @@
           <article class="project-panel featured" id="pingo" aria-labelledby="pingo-title">
             <h3 id="pingo-title">Pingo</h3>
             <p class="project-status">In progress</p>
-            <dl class="case-facts">
-              <div><dt>Problem</dt><dd>TODO: describe what Pingo is in one sentence.</dd></div>
-              <div><dt>What I did</dt><dd>TODO: describe what’s built so far.</dd></div>
-              <div><dt>Next</dt><dd>TODO: describe what’s next or being tested.</dd></div>
-              <div><dt>Stack</dt><dd>TODO: confirm the stack.</dd></div>
-              <div><dt>Links</dt><dd>TODO: add the repository link.</dd></div>
-            </dl>
           </article>
         </div>
+        <section class="more-work" aria-labelledby="more-work-title">
+          <h3 id="more-work-title">More work</h3>
+          <ul>
+            <li id="fraiseql"><a href="https://github.com/fraiseql/fraiseql-python/pull/491">FraiseQL PR</a> · Diagnosed a Rust benchmark compilation failure and arrived at the same fix as the maintainers. The PR closed unmerged after they shipped an equivalent fix.</li>
+            <li id="churn"><a href="https://github.com/Joemon24/bank-customer-churn-ml">Bank Churn</a> · Built a churn prediction pipeline and compared logistic regression, random forest, and XGBoost.</li>
+          </ul>
+        </section>
       </div>
-      <section class="more-work" aria-labelledby="more-work-title">
-        <h3 id="more-work-title">More work</h3>
-        <ul>
-          <li id="fraiseql"><a href="https://github.com/fraiseql/fraiseql-python/pull/491">FraiseQL PR</a> · Diagnosed a Rust benchmark compilation failure and arrived at the same fix as the maintainers. The PR closed unmerged after they shipped an equivalent fix.</li>
-          <li id="churn"><a href="https://github.com/Joemon24/bank-customer-churn-ml">Bank Churn</a> · Built a churn prediction pipeline and compared logistic regression, random forest, and XGBoost.</li>
-        </ul>
-      </section>
     </section>
 
     <section id="about" class="about-section shell" aria-labelledby="about-title">
@@ -188,16 +180,38 @@
           <a href="https://github.com/Joemon24">GitHub <span class="arrow" aria-hidden="true">↗</span></a>
         </div>
       </div>
-      <aside class="contact-pet" aria-label="A note from the robot">
-        <canvas width="24" height="24" aria-hidden="true"></canvas>
-        <p>Recovery complete. Ready to talk.</p>
-      </aside>
+      <div class="contact-assistant">
+        <div class="contact-pet">
+          <canvas width="24" height="24" aria-hidden="true"></canvas>
+          <p id="assistant-status" role="status">Recovery complete. Ready to talk.</p>
+        </div>
+        <form id="contact-composer" data-formspree-id="" aria-label="Compose a message" hidden>
+          <fieldset class="contact-topics">
+            <legend>What’s it about?</legend>
+            <label><input type="radio" name="topic" value="hiring"> Hiring</label>
+            <label><input type="radio" name="topic" value="project"> Project question</label>
+            <label><input type="radio" name="topic" value="other" checked> Other</label>
+          </fieldset>
+          <label for="contact-email">Your email</label>
+          <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="254" required>
+          <label for="contact-subject">Subject</label>
+          <input id="contact-subject" name="subject" maxlength="120" required>
+          <label for="contact-message">Message</label>
+          <textarea id="contact-message" name="message" rows="4" maxlength="4000" required></textarea>
+          <button id="attach-project" type="button" aria-pressed="false" hidden>Attach current project</button>
+          <div class="composer-actions">
+            <button class="composer-send" type="submit">Open email draft</button>
+            <button class="composer-clear" type="button">Clear draft <span aria-hidden="true">×</span></button>
+          </div>
+          <p class="caption" id="composer-help">Opens your email app with the draft. Send it from there.</p>
+        </form>
+      </div>
     </section>
     <div class="shell footer-credit">Joemon Joy <a href="#top">Back to top ↑</a></div>
   </footer>
 
   <dialog id="command-palette" aria-labelledby="palette-title">
-    <form method="dialog"><h2 id="palette-title">Quick actions</h2><button aria-label="Close quick actions">Close</button></form>
+    <form method="dialog"><h2 id="palette-title">Quick actions</h2><button aria-label="Close quick actions">Close <span class="close-mark" aria-hidden="true">×</span></button></form>
     <ul>
       <li><a href="#projects">Go to Projects</a></li>
       <li><a href="#about">Go to About</a></li>
